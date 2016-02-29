@@ -13,7 +13,6 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 			articles.create({
 				name: $scope.name,
 				link: $scope.link,
-				reminder: ''
 			});
 			$scope.name = '';
 			$scope.link = '';
@@ -42,6 +41,7 @@ app.factory('articles', ['$http', function($http){
 
 	o.create = function(article){
 		return $http.post('/articles', article).success(function(data){
+			console.log(article.created);
 			o.articles.push(data);
 		});
 	};
