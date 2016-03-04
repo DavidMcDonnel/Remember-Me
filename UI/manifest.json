@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+
+  "name": "RememberMe",
+  "description": "Keep track of your digital life",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "RMicon.png",
+    "default_popup": "RMpopup.html",
+    "default_title": "Save this link!"
+  },
+
+  "permissions": [
+    "activeTab",
+    "https://ajax.googleapis.com/", 
+    "contextMenus"
+  ],
+
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  }
+}

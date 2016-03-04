@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="RMpopup.css"/>
+    <title>RememberMe</title>
+    <style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 100%;
+      }
+    </style>
+    <script src="RMpopup.js"></script>
+  </head>
+  <body>
+    <div class="dropdown">
+      <button onclick="dropDownFunction()" class="dropbtn">Send me this link in...</button>
+      <div id="myDropdown" class="dropdown-content">
+        <a onclick="oneWeekArticle()">...one week</a>
+        <a onclick="twoWeeksArticle()">...two weeks</a>
+        <a onclick="threeWeeksArticle()">...three weeks</a>
+      </div>
+    </div>
+    <br><br>
+    <textarea class="textbox" type="text" placeholder="Add a note"></textarea>
+  </body>
+</html>
+
