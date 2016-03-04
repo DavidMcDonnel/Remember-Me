@@ -23,7 +23,8 @@
 			<ol>
 				<li ng-repeat="article in articles">
 					<a href="{{article.link}}">{{article.name}}</a>
-					<a href="#/articles/{{$index}}">Reminders</a>
+					<a href="#/articles/{{article.id}}">Reminders</a>
+					<button ng-click="snoozeReminder(article)">snooze</button> 
 				</li>
 			</ol>
 
@@ -40,7 +41,7 @@
 			</div>
 
 			<div>
-				<p> Remind me on {{articles.reminder}} </p>
+				<p> Remind me on {{articles.remind_me.date}} </p>
 			</div>
 		</script>
 
