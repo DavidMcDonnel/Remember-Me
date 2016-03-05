@@ -1,11 +1,12 @@
-var app = angular.module('rememberMe', ['ui.router']);
+var app = angular.module('rememberMe', []);
 
 app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
+	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks']; 
+	console.log($scope.remind_options);
 
 	$scope.addArticle = function(){
-		$scope.remind_on = $scope.remind_options[1]; // FIX ME; hook up to dropdown
 		if($scope.name != ''){
 			// Calculate new date based on text input of reminder timeframe 
 			var addToDate = 0;
@@ -38,7 +39,51 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 
 	$scope.snoozeReminder = function(article){
 		articles.snooze(article);
-	}
+	};
+
+	$scope.init = function(){
+		articles.getAll();
+		
+		$scope.getCurrentTabUrl(function(url, title){
+			$scope.link = url;
+			//$scope.name = title; 
+		});
+	};
+
+	$scope.getCurrentTabUrl = function(callback){
+	  // Query filter to be passed to chrome.tabs.query - see
+	  // https://developer.chrome.com/extensions/tabs#method-query
+	  var queryInfo = {
+	    active: true,
+	    currentWindow: true
+	  };
+
+	  chrome.tabs.query(queryInfo, function(tabs) {
+	    // chrome.tabs.query invokes the callback with a list of tabs that match the
+	    // query. When the popup is opened, there is certainly a window and at least
+	    // one tab, so we can safely assume that |tabs| is a non-empty array.
+	    // A window can only have one active tab at a time, so the array consists of
+	    // exactly one tab.
+	    var tab = tabs[0];
+
+	    // A tab is a plain object that provides information about the tab.
+	    // See https://developer.chrome.com/extensions/tabs#type-Tab
+	    var url = tab.url;
+	    var title = tab.title;
+
+	    // tab.url is only available if the "activeTab" permission is declared.
+	    // If you want to see the URL of other tabs (e.g. after removing active:true
+	    // from |queryInfo|), then the "tabs" permission is required to see their
+	    // "url" properties.
+	    console.assert(typeof url == 'string', 'tab.url should be a string');
+
+	    callback(url, title);
+	  });
+	};
+
+	$scope.toggleNew = function() {
+		$scope.newArticle = !$scope.newArticle;
+	};
 }]);
 
 app.controller('ArticlesCtrl', ['$scope', '$stateParams', 'articles', function($scope, $stateParams, articles){
@@ -55,19 +100,19 @@ app.factory('articles', ['$http', function($http){
 	};
 
 	o.getAll = function() {
-		return $http.get('/articles').success(function(data){
+		return $http.get('http://localhost:3000/articles').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
 	o.getToday = function(){
-		return $http.get('/articles/today').success(function(data){
+		return $http.get('http://localhost:3000/articles/today').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
 	o.create = function(article){
-		return $http.post('/articles', article).success(function(data){
+		return $http.post('http://localhost:3000/articles', article).success(function(data){
 			o.articles.push(data);
 		});
 	};
@@ -83,23 +128,23 @@ app.factory('articles', ['$http', function($http){
 	return o;
 }]);
 
-app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
-	$stateProvider
-	.state('home', {
-		url: '/home',
-		templateUrl: '/home.html',
-		controller: 'MainCtrl',
-		resolve: {
-			articlePromise: [ 'articles', function(articles){
-				return articles.getAll();
-			}]
-		}
-	})
-	.state('articles', {
-		url: '/articles/{id}',
-		templateUrl: '/articles.html',
-		controller: 'ArticlesCtrl'
-	});
+// app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
+// 	$stateProvider
+// 	.state('home', {
+// 		url: '/home',
+// 		templateUrl: chrome.extension.getURL('views/home.html'),
+// 		controller: 'MainCtrl',
+// 		resolve: {
+// 			articlePromise: [ 'articles', function(articles){
+// 				return articles.getAll();
+// 			}]
+// 		}
+// 	})
+// 	.state('articles', {
+// 		url: '/articles/{id}',
+// 		templateUrl: '/articles.html',
+// 		controller: 'ArticlesCtrl'
+// 	});
 
-	$urlRouterProvider.otherwise('home');
-}]);
+// 	$urlRouterProvider.otherwise('home');
+// }]);

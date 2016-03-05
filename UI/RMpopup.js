@@ -1,15 +1,15 @@
-chrome.contextMenus.create({
-    title: "Use URL of image somehow",
-    contexts:["image"],
-    onclick: function(info) {
-        handleImageURL(info.srcUrl);
-    }
-});
+// chrome.contextMenus.create({
+//     title: "Use URL of image somehow",
+//     contexts:["image"],
+//     onclick: function(info) {
+//         handleImageURL(info.srcUrl);
+//     }
+// });
 
-function handleImageURL(url) {
-    // now do something with the URL string in the background page
-    alert(url);
-}
+// function handleImageURL(url) {
+//     // now do something with the URL string in the background page
+//     alert(url);
+// }
 
 
 
@@ -45,6 +45,7 @@ window.onclick = function(event) {
  *   is found.
  */
 function getCurrentTabUrl(callback) {
+  alert('getting url!');
   // Query filter to be passed to chrome.tabs.query - see
   // https://developer.chrome.com/extensions/tabs#method-query
   var queryInfo = {
@@ -63,6 +64,7 @@ function getCurrentTabUrl(callback) {
     // A tab is a plain object that provides information about the tab.
     // See https://developer.chrome.com/extensions/tabs#type-Tab
     var url = tab.url;
+    var title = tab.title;
 
     // tab.url is only available if the "activeTab" permission is declared.
     // If you want to see the URL of other tabs (e.g. after removing active:true
@@ -70,6 +72,6 @@ function getCurrentTabUrl(callback) {
     // "url" properties.
     console.assert(typeof url == 'string', 'tab.url should be a string');
 
-    callback(url);
+    callback(url, title);
   });
 }

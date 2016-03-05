@@ -6,7 +6,7 @@ var ArticleSchema = new mongoose.Schema({
 	remind_me: {
 		date: String,
 		time: {type: String, default: '08:00:00'} 
-	} 
+	}
 });
 
 ArticleSchema.methods.snooze = function(callback){
