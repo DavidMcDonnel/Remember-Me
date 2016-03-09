@@ -24,7 +24,8 @@
 				<li ng-repeat="article in articles">
 					<a href="{{article.link}}">{{article.name}}</a>
 					<a href="#/articles/{{article.id}}">Reminders</a>
-					<button ng-click="snoozeReminder(article)">snooze</button> 
+					<button ng-click="snoozeReminder(article)">Snooze</button>
+					<button ng-click="deleteArticle(article)">Remove</button>
 				</li>
 			</ol>
 
@@ -44,6 +45,7 @@
 
 			<div>
 				<p> Remind me on {{articles.remind_me.date}} </p>
+				<select type="number" ng-options="article as article.name for article in articles track by article._id" ng-model="remind_on"></select>
 			</div>
 		</script>
 

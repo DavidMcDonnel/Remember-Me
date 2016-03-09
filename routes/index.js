@@ -50,9 +50,27 @@ router.put('/articles/:article/snooze', function(req, res, next){
 });
 
 /* GET article by id */
-// router.get('/articles/:article', function(req, res){
-// 	res.json(req.article);
-// });
+router.get('/articles/:article',function(req,res){
+	res.json(req.article);
+});
+
+/* DELETE article by id */
+router.delete('/articles/:article', function(req, res){
+	// console.dir(res);
+	//console.dir(req);
+	// var article = new Article(req.body);
+	// var collection = req.db.get('articles');
+	// console.dir(req.params);
+	// var article = res.json(req.article);
+	// console.dir(collection);
+	// console.dir(article);
+	req.db.get('articles').remove({_id:req.params.id.toString()}.exec(function(err,result){
+		if (err){
+			return next(err);
+		}
+		//res.json(articles);
+	}));
+});
 
 /* POST new article reminder */
 router.post('/articles', function(req, res, next){
