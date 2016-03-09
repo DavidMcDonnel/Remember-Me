@@ -1,10 +1,9 @@
-var app = angular.module('rememberMe', []);
+var app = angular.module('rememberMe', []); //CHANGE
 
 app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
-	$scope.remind_options = ['1 day', '1 week', '2 weeks']; 
-	console.log($scope.remind_options);
+	$scope.remind_options = [{value:0,name:'Today',id:0},{value:1,name:'1 day',id:1},{value:7,name:'1 week',id:2},{value:14,name:'2 weeks',id:3}];
 
 	
 	$scope.toggleNew = function() {
@@ -17,12 +16,15 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 			var addToDate = 0;
 			switch($scope.remind_on){
 				case $scope.remind_options[0]:
-					addToDate = 1;
+					addToDate = 0;
 					break;
 				case $scope.remind_options[1]:
-					addToDate = 7;
+					addToDate = 1;
 					break;
 				case $scope.remind_options[2]:
+					addToDate = 7;
+					break;
+				case $scope.remind_options[3]:
 					addToDate = 14;
 					break;
 			}
@@ -33,7 +35,8 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 				name: $scope.name,
 				link: $scope.link,
 				remind_me: {
-					date: date.toDateString()	// FIXME: add time once we allow user preferences
+					date: date.toDateString(),	// FIXME: add time once we allow user preferences
+					time: date.toString().split(' ')[4]
 				}
 			});
 			$scope.name = '';
@@ -41,6 +44,11 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 			$scope.remind_on = '';
 			$scope.toggleNew();
 		}
+	};
+
+	$scope.deleteArticle = function(article){
+		articles.removeArticle(article);
+		//articles.removeArticle({_id:article._id});
 	};
 
 	$scope.snoozeReminder = function(article){
@@ -103,30 +111,36 @@ app.factory('articles', ['$http', function($http){
 	};
 
 	o.getAll = function() {
-		return $http.get('http://localhost:3000/articles').success(function(data){
+		return $http.get(http:'//localhost:3000/articles').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
 	o.getToday = function(){
-		return $http.get('http://localhost:3000/articles/today').success(function(data){
+		return $http.get(http:'//localhost:3000/articles/today').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
 	o.create = function(article){
-		return $http.post('http://localhost:3000/articles', article).success(function(data){
+		return $http.post(http:'//localhost:3000/articles', article).success(function(data){
 			o.articles.push(data);
 		});
 	};
 
+	o.removeArticle = function(article){
+		return $http.delete(http:'//localhost:3000/articles/'+article._id).success(function(data){
+				o.articles.splice(o.articles.indexOf(article),1);
+		});
+	};
+
 	o.snooze = function(article){
-		return $http.put('/articles/' + article._id + '/snooze').success(function(data){
+		return $http.put(http:'//localhost:3000/articles/' + article._id + '/snooze').success(function(data){
 			var new_date = new Date(this.remind_me.date);
 			new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
 			article.remind_me.date = new_date.toDateString();
 		});
-	}
+	};
 
 	return o;
 }]);
@@ -135,7 +149,7 @@ app.factory('articles', ['$http', function($http){
 // 	$stateProvider
 // 	.state('home', {
 // 		url: '/home',
-// 		templateUrl: chrome.extension.getURL('views/home.html'),
+// 		templateUrl: '/home.html',
 // 		controller: 'MainCtrl',
 // 		resolve: {
 // 			articlePromise: [ 'articles', function(articles){
