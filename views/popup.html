@@ -37,6 +37,7 @@
     <div ng-show="newArticle">
       <form ng-submit="addArticle()">
        Name: <input type="text" ng-model="name"></input>
+       Note: <input type="text" ng-model="note"></input>
        Reminder: <select ng-model="remind_on" ng-options="opt for opt in remind_options"></select>
         <button type="submit"> Add </button>
       </form>
