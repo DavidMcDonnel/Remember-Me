@@ -42,11 +42,11 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 	};
 
 	$scope.init = function(){
-		articles.getAll();
+		articles.getToday();
 		
 		$scope.getCurrentTabUrl(function(url, title){
 			$scope.link = url;
-			//$scope.name = title; 
+			$scope.name = title; 
 		});
 	};
 
@@ -84,6 +84,7 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 	$scope.toggleNew = function() {
 		$scope.newArticle = !$scope.newArticle;
 	};
+
 }]);
 
 app.controller('ArticlesCtrl', ['$scope', '$stateParams', 'articles', function($scope, $stateParams, articles){
@@ -148,3 +149,10 @@ app.factory('articles', ['$http', function($http){
 
 // 	$urlRouterProvider.otherwise('home');
 // }]);
+
+
+// /* Enable bootstrap popover -- FIXME move eksewhere */
+// $(document).ready(function(){
+//     $('[data-toggle="popover"]').popover();   
+//     $('[data-toggle="tooltip"]').tooltip();
+// });
