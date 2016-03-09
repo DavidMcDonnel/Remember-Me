@@ -1,18 +1,16 @@
 <html ng-app="rememberMe" ng-csp>
   <head>
-    <link type="text/css" rel="stylesheet" href="../UI/RMpopup.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="../public/stylesheets/angular-csp.css"/>
+    <link type="text/css" rel="stylesheet" href="../UI/RMpopup.css"/>
+
     <title>RememberMe</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-      }
-    </style>
+
     <!-- <script src="../UI/RMpopup.js"></script> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"> </script> -->
     <script src="/public/javascripts/angularApp.js"></script>
+
   </head>
 
   <body ng-controller="MainCtrl" ng-init="init()">
@@ -20,7 +18,15 @@
 
     <div>
       <ul>
-        <li ng-repeat="article in articles | orderBy: '-remind_me.date' | limitTo:3"><a href="{{article.link}}">{{article.name}}</a></li>
+        <li ng-repeat="article in articles | limitTo:3">
+          <a href="{{article.link}}">{{article.name}}</a>
+          <p ng-show="article.note">{{article.note}}</p>
+          <hr/>
+        <!--   <div ng-show="{{article.note}}">
+            <span class="glyphicon glyphicon-info-sign" tooltip="{{article.name}}"></span>
+            <p> {{article.note}} </p>
+          </div> -->
+        </li>
       </ul>
     </div>
 
@@ -29,7 +35,6 @@
     <button ng-hide="newArticle" ng-click="toggleNew()">New</button>
 
     <div ng-show="newArticle">
-      {{newArticle}}
       <form ng-submit="addArticle()">
        Name: <input type="text" ng-model="name"></input>
        Reminder: <select ng-model="remind_on" ng-options="opt for opt in remind_options"></select>
