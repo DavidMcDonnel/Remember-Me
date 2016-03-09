@@ -6,6 +6,11 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 	$scope.remind_options = ['1 day', '1 week', '2 weeks']; 
 	console.log($scope.remind_options);
 
+	
+	$scope.toggleNew = function() {
+		$scope.newArticle = !$scope.newArticle;
+	};
+
 	$scope.addArticle = function(){
 		if($scope.name != ''){
 			// Calculate new date based on text input of reminder timeframe 
@@ -34,6 +39,7 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 			$scope.name = '';
 			$scope.link = '';
 			$scope.remind_on = '';
+			$scope.toggleNew();
 		}
 	};
 
@@ -79,10 +85,6 @@ app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
 
 	    callback(url, title);
 	  });
-	};
-
-	$scope.toggleNew = function() {
-		$scope.newArticle = !$scope.newArticle;
 	};
 
 }]);
