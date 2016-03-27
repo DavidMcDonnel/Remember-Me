@@ -87,8 +87,6 @@ router.delete('/articles/:article', function(req, res){
 router.post('/articles', function(req, res, next){
 	var article = new Article(req.body);
 	
-	//article.user = req.payload.username;
-	
 	article.save(function(err, article){
 		if (err) {
 			return next(err);
