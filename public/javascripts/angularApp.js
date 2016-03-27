@@ -125,6 +125,10 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	  });
 	};
 
+	$scope.createTab = function(url){
+		chrome.tabs.create({'url': url});
+	};
+
 }]);
 
 app.controller('ArticlesCtrl', ['$scope', '$stateParams', 'articles', function($scope, $stateParams, articles){

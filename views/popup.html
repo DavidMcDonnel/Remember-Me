@@ -59,7 +59,7 @@
     <div id="articles" ng-show="isLoggedIn">
       <ul>
         <li ng-repeat="article in articles | limitTo:3">
-          <a href="{{article.link}}">{{article.name}}</a>
+          <a href="#" ng-click="createTab(article.link)">{{article.name}}</a>
           <p ng-show="article.note">{{article.note}}</p>
           <hr/>
         <!--   <div ng-show="{{article.note}}">
