@@ -16,9 +16,9 @@
   <body ng-controller="MainCtrl" ng-init="init()">
     <h3> Remember-Me </h3>
 
-    <div ng-show="isLoggedIn()">Hello {{ currentUser() }}</div>
+    <div ng-show="isLoggedIn">Hello {{currentUser}}</div>
 
-    <div id="register" ng-hide="isLoggedIn()"> 
+    <div id="register" ng-hide="isLoggedIn"> 
       <div ng-show="error" class="alert alert-danger row">
         <span>{{ error.message }}</span>
       </div>
@@ -34,7 +34,7 @@
       </form>
     </div>
 
-    <div id="login" ng-hide="isLoggedIn()">
+    <div id="login" ng-hide="isLoggedIn">
       <div ng-show="error" class="alert alert-danger row">
         <span>{{ error.message }}</span>
       </div>
@@ -50,13 +50,13 @@
       </form>
     </div>
 
-    <div id="logout" ng-show="isLoggedIn()">
+    <div id="logout" ng-show="isLoggedIn">
       <form ng-submit="logOut()"style="margin-top:30px;">
         <button type="submit" class="btn btn-primary">Log Out</button>
       </form>
     </div>
 
-    <div id="articles" ng-show="isLoggedIn()">
+    <div id="articles" ng-show="isLoggedIn">
       <ul>
         <li ng-repeat="article in articles | limitTo:3">
           <a href="{{article.link}}">{{article.name}}</a>
@@ -72,7 +72,7 @@
 
     <br>
 
-    <div id="addNewArticle" ng-show="isLoggedIn()">
+    <div id="addNewArticle" ng-show="isLoggedIn">
       <button ng-hide="newArticle" ng-click="toggleNew()">New</button>
 
       <div ng-show="newArticle">

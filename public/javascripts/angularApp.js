@@ -7,10 +7,9 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	
 	$scope.user = {};
 
-	$scope.isLoggedIn = auth.isLoggedIn;
-  	$scope.currentUser = auth.currentUser;
-  	//$scope.logOut = auth.logOut;
-
+	$scope.isLoggedIn = auth.isLoggedIn();
+  	$scope.currentUser = auth.currentUser();
+  	//$scope.logOut = auth.logOut; 
   
 	$scope.register = function(){
     	auth.register($scope.user).error(function(error){
@@ -58,9 +57,12 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			var date = new Date();
 			date.setDate(date.getDate() + addToDate);
 
+			console.log("user: " + $scope.currentUser);
+
 			articles.create({
 				name: $scope.name,
 				link: $scope.link,
+				user: $scope.currentUser,
 				note: $scope.note,
 				remind_me: {
 					date: date.toDateString()	// FIXME: add time once we allow user preferences
