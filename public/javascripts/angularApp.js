@@ -6,12 +6,12 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
 	
 	$scope.user = {};
+
 	$scope.isLoggedIn = auth.isLoggedIn;
   	$scope.currentUser = auth.currentUser;
   	//$scope.logOut = auth.logOut;
 
-  	$scope.loginRegister = !auth.isLoggedIn;
-
+  
 	$scope.register = function(){
     	auth.register($scope.user).error(function(error){
       		$scope.error = error;
@@ -219,6 +219,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
 	auth.logOut = function(){
+		console.log("in log out");
   		$window.localStorage.removeItem('remember-me-token');
 	};
 
