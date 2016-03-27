@@ -7,8 +7,15 @@ var bodyParser = require('body-parser');
 //var CronJob = require('cron').CronJob;
 
 var mongoose = require('mongoose');
-require('./models/articles');
+var passport = require('passport');
+
 mongoose.connect('mongodb://localhost/articles');
+
+require('./models/articles');
+// Passport user login
+require('./models/Users');
+require('./config/passport');
+
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -26,7 +33,7 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
+//app.set('port', process.env.PORT || 5000);
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -35,6 +42,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Use passport
+app.use(passport.initialize());
 
 app.use('/', routes);
 app.use('/users', users);

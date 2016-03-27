@@ -1,11 +1,38 @@
 var app = angular.module('rememberMe', []); //CHANGE
 
-app.controller('MainCtrl', ['$scope', 'articles', function($scope, articles){
+app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, articles, auth){
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
-
 	
+	$scope.user = {};
+	$scope.isLoggedIn = auth.isLoggedIn;
+  	$scope.currentUser = auth.currentUser;
+  	//$scope.logOut = auth.logOut;
+
+  	$scope.loginRegister = !auth.isLoggedIn;
+
+	$scope.register = function(){
+    	auth.register($scope.user).error(function(error){
+      		$scope.error = error;
+    	}).then(function(){
+      		$scope.loginRegister = false;
+    	});
+  	};
+
+  	$scope.logIn = function(){
+    	auth.logIn($scope.user).error(function(error){
+      		$scope.error = error;
+    	}).then(function(){
+      		$scope.loginRegister = false;
+    	});
+  	};
+
+  	$scope.logOut = function() {
+  		auth.logOut();
+  		$scope.loginRegister = true;
+  	};
+
 	$scope.toggleNew = function() {
 		$scope.newArticle = !$scope.newArticle;
 	};
@@ -144,6 +171,58 @@ app.factory('articles', ['$http', function($http){
 	};
 
 	return o;
+}]);
+
+app.factory('auth', ['$http', '$window', function($http, $window){
+   var auth = {};
+
+    auth.saveToken = function (token){
+  		$window.localStorage['remember-me-token'] = token;
+ 	};
+
+	auth.getToken = function (){
+  		return $window.localStorage['remember-me-token'];
+	};
+
+	auth.isLoggedIn = function(){
+  		var token = auth.getToken();
+
+  		if(token){
+    		var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+    		return payload.exp > Date.now() / 1000;
+  		} else {
+    		return false;
+  		}
+	};
+
+	auth.currentUser = function(){
+  		if(auth.isLoggedIn()){
+    		var token = auth.getToken();
+    		var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+    		return payload.username;
+  		}
+	};
+
+	auth.register = function(user){
+  		return $http.post('http://localhost:3000/register', user).success(function(data){
+    		auth.saveToken(data.token);
+  		});
+	};
+
+	auth.logIn = function(user){
+		console.log("calling login in angularApp.js for user " + user.username);
+  		return $http.post('http://localhost:3000/login', user).success(function(data){
+    		auth.saveToken(data.token);
+  		});
+	};
+
+	auth.logOut = function(){
+  		$window.localStorage.removeItem('remember-me-token');
+	};
+
+  return auth;
 }]);
 
 // app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){

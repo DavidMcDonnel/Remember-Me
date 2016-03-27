@@ -16,7 +16,48 @@
   <body ng-controller="MainCtrl" ng-init="init()">
     <h3> Remember-Me </h3>
 
-    <div>
+    <div ng-show="isLoggedIn()">Hello {{ currentUser() }}</div>
+
+    <div id="register" ng-show="loginRegister"> 
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
+      </div>
+
+      <form ng-submit="register()" style="margin-top:30px;">
+        <h4>Register</h4>
+        <div class="form-group">
+         <input type="text" class="form-control"placeholder="Username"ng-model="user.username"></input>
+        </div>
+        <div class="form-group">
+          <input type="password"class="form-control"placeholder="Password"ng-model="user.password"></input>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+    </div>
+
+    <div id="login" ng-show="loginRegister">
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
+      </div>
+      <form ng-submit="logIn()"style="margin-top:30px;">
+      <h4>Log In</h4>
+      <div class="form-group">
+        <input type="text"class="form-control" placeholder="Username"ng-model="user.username"></input>
+      </div>
+      <div class="form-group">
+        <input type="password"class="form-control"placeholder="Password"ng-model="user.password"></input>
+      </div>
+      <button type="submit" class="btn btn-primary">Log In</button>
+      </form>
+    </div>
+
+    <div id="logout" ng-hide="loginRegister">
+      <form ng-submit="logOut()"style="margin-top:30px;">
+        <button type="submit" class="btn btn-primary">Log Out</button>
+      </form>
+    </div>
+
+    <div id="articles" ng-hide="loginRegister">
       <ul>
         <li ng-repeat="article in articles | limitTo:3">
           <a href="{{article.link}}">{{article.name}}</a>
@@ -32,17 +73,20 @@
 
     <br>
 
-    <button ng-hide="newArticle" ng-click="toggleNew()">New</button>
+    <div id="addNewArticle" ng-hide="loginRegister">
+      <button ng-hide="newArticle" ng-click="toggleNew()">New</button>
 
-    <div ng-show="newArticle">
-      <form ng-submit="addArticle()">
-       Name: <input type="text" ng-model="name"></input>
-       Note: <input type="text" ng-model="note"></input>
-       Reminder: <select ng-model="remind_on" ng-options="opt for opt in remind_options"></select>
-        <button type="submit"> Add </button>
-      </form>
+      <div ng-show="newArticle">
+        <form ng-submit="addArticle()">
+        Name: <input type="text" ng-model="name"></input>
+        Note: <input type="text" ng-model="note"></input>
+        Reminder: <select ng-model="remind_on" ng-options="opt for opt in remind_options"></select>
+          <button type="submit"> Add </button>
+        </form>
+      </div>
     </div>
 
   </body>
+
 </html>
 
