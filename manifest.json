@@ -13,6 +13,7 @@
 
   "permissions": [
     "activeTab",
+    "alarms",
     "https://ajax.googleapis.com/", 
     "contextMenus",
     "http://localhost:3000/"

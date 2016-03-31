@@ -25,7 +25,10 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
       		$scope.error = error;
     	}).then(function(){
       		$scope.loginRegister = false;
-    	});
+      	});
+    	// }).success(function(){
+    	// 	articles.getToday();
+    	// });
   	};
 
   	$scope.logOut = function() {
@@ -56,7 +59,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 					break;
 			}
 			var date = new Date();
-			date.setDate(date.getDate() + addToDate);
+			//date.setDate(date.getDate() + addToDate);
 
 			articles.create({
 				name: $scope.name,
