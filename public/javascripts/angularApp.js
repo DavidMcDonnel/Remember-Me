@@ -6,30 +6,43 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
 	
 	$scope.user = {};
-
-	$scope.isLoggedIn = auth.isLoggedIn();
-  	$scope.currentUser = auth.currentUser();
-  	//$scope.logOut = auth.logOut; 
-  
+	
 	$scope.register = function(){
+		$scope.user = {
+			username: $scope.userRegister,
+			password: $scope.passwordRegister
+		};
     	auth.register($scope.user).error(function(error){
       		$scope.error = error;
     	}).then(function(){
-      		$scope.loginRegister = false;
+    		$scope.registerSuccess = "You've successfully registered!";
     	});
   	};
 
   	$scope.logIn = function(){
+  		$scope.user = {
+			username: $scope.userLogin,
+			password: $scope.passwordLogin
+		};
+	
     	auth.logIn($scope.user).error(function(error){
       		$scope.error = error;
     	}).then(function(){
-      		$scope.loginRegister = false;
+      		$scope.registerSuccess = '';
+      		$scope.isLoggedIn = auth.isLoggedIn();
+
+      		$scope.currentUser = auth.currentUser();
     	});
   	};
 
   	$scope.logOut = function() {
   		auth.logOut();
-  		$scope.loginRegister = true;
+  		
+  		$scope.isLoggedIn = auth.isLoggedIn();
+      	$scope.currentUser = auth.currentUser();
+      	$scope.error = '';
+      	$scope.registerSuccess = '';
+  		//$scope.loginRegister = true;
   	};
 
 	$scope.toggleNew = function() {
@@ -86,6 +99,10 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	};
 
 	$scope.init = function(){
+		// Find out if they're logged in and who current user is
+		$scope.isLoggedIn = auth.isLoggedIn();
+		$scope.currentUser = auth.currentUser();
+
 		articles.getToday();
 		
 		$scope.getCurrentTabUrl(function(url, title){
@@ -127,7 +144,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 
 	$scope.createTab = function(url){
 		chrome.tabs.create({'url': url});
-	};
+	}; 
 
 }]);
 
@@ -195,7 +212,6 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
   		if(token){
     		var payload = JSON.parse($window.atob(token.split('.')[1]));
-
     		return payload.exp > Date.now() / 1000;
   		} else {
     		return false;
@@ -206,7 +222,6 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   		if(auth.isLoggedIn()){
     		var token = auth.getToken();
     		var payload = JSON.parse($window.atob(token.split('.')[1]));
-
     		return payload.username;
   		}
 	};
@@ -225,7 +240,6 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
 	auth.logOut = function(){
-		console.log("in log out");
   		$window.localStorage.removeItem('remember-me-token');
 	};
 
