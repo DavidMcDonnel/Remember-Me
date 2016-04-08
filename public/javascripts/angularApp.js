@@ -30,10 +30,41 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
     	}).then(function(){
       		$scope.registerSuccess = '';
       		$scope.isLoggedIn = auth.isLoggedIn();
-
       		$scope.currentUser = auth.currentUser();
+
+			// set alarms at login
+			$scope.checkAlarms();
+			var tomorrow = Date.now() + 1;
+			tomorrow.setHours(0,0,0,0); // set to midnight
+			var untilTomorrow = tomorrow - Date.now();
+			chrome.alarms.create("newDay", { when: untilTomorrow });      		
     	});
   	};
+
+  	$scope.checkAlarms = function(){
+  		$scope.articles.forEach(function(article){
+			var date = new Date(article.remind_me.date);
+			var time = article.remind_me.time.split(':');
+			date.setHours(time[0],time[1],time[2]);
+
+			var alarm_time = date - Date.now();
+			chrome.alarms.create(article.name, { when: alarm_time });
+		});
+  	};
+
+  	// FIXME: for testing only
+	$scope.create_alarms_test = function(){
+		chrome.alarms.create("newDay", { when: 5} );
+	};
+
+	chrome.alarms.onAlarm.addListener(function(alarm){
+		if(alarm.name === "newDay"){
+			$scope.checkAlarms();
+		}
+		else{
+			$scope.createNotification(alarm.name, "message here");
+		}
+	});
 
   	$scope.logOut = function() {
   		auth.logOut();
@@ -153,7 +184,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	    chrome.notifications.create("notificationName",opt,function(){});
 
 	    //include this line if you want to clear the notification after 5 seconds
-    	setTimeout(function(){chrome.notifications.clear("notificationName",function(){});},5000);
+    	//setTimeout(function(){chrome.notifications.clear("notificationName",function(){});},5000);
     };
 
 }]);
@@ -255,6 +286,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
   return auth;
 }]);
+
 
 // app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
 // 	$stateProvider
