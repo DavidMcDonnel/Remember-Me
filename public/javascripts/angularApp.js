@@ -50,6 +50,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	};
 
 	$scope.addArticle = function(){
+	
 		if($scope.name != ''){
 			// Calculate new date based on text input of reminder timeframe 
 			var addToDate = 0;
@@ -145,6 +146,15 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	$scope.createTab = function(url){
 		chrome.tabs.create({'url': url});
 	}; 
+
+	$scope.createNotification = function(title, message) {
+	
+	    var opt = {type: "basic",title: title,message: message,iconUrl: "../../UI/RMicon.png"}
+	    chrome.notifications.create("notificationName",opt,function(){});
+
+	    //include this line if you want to clear the notification after 5 seconds
+    	setTimeout(function(){chrome.notifications.clear("notificationName",function(){});},5000);
+    };
 
 }]);
 
