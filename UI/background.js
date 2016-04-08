@@ -15,8 +15,8 @@ function onClickHandler(info, tab) {
   
 };*/
 
-createNotification("Haley", "is the best!");
-audioNotification();
+//createNotification("Haley", "is the best!");
+//audioNotification();
 
 function audioNotification(){
     var yourSound = new Audio('http://www.html5rocks.com/en/tutorials/audio/quick/test.mp3');
