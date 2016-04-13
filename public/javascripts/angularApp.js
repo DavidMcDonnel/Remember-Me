@@ -34,13 +34,17 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 
 			// set alarms at login
 			$scope.checkAlarms();
-			var tomorrow = Date.now() + 1;
-			tomorrow.setHours(0,0,0,0); // set to midnight
-			var untilTomorrow = tomorrow - Date.now();
+
+			var tomorrow = new Date();
+			tomorrow.setDate(tomorrow.getDate() + 1);
+			console.log(tomorrow);
+			tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
+			var untilTomorrow = tomorrow - (new Date());
 			chrome.alarms.create("newDay", { when: untilTomorrow });      		
     	});
   	};
 
+  	// Check to see if there are any alarms 
   	$scope.checkAlarms = function(){
   		$scope.articles.forEach(function(article){
 			var date = new Date(article.remind_me.date);
@@ -48,7 +52,8 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			date.setHours(time[0],time[1],time[2]);
 
 			var alarm_time = date - Date.now();
-			chrome.alarms.create(article.name, { when: alarm_time });
+			//var info = article.name + "," + article.link + "," + article.note
+			chrome.alarms.create(article._id, { when: alarm_time });
 		});
   	};
 
@@ -62,7 +67,8 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			$scope.checkAlarms();
 		}
 		else{
-			$scope.createNotification(alarm.name, "message here");
+
+			$scope.createNotification(alarm.name);
 		}
 	});
 
@@ -143,6 +149,12 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		});
 	};
 
+	$scope.replyBtnClick = function(link) {
+		console.log("link: " + link);
+		chrome.tabs.create({ url: link });
+	}
+
+
 	$scope.getCurrentTabUrl = function(callback){
 	  // Query filter to be passed to chrome.tabs.query - see
 	  // https://developer.chrome.com/extensions/tabs#method-query
@@ -178,10 +190,28 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		chrome.tabs.create({'url': url});
 	}; 
 
-	$scope.createNotification = function(title, message) {
-	
-	    var opt = {type: "basic",title: title,message: message,iconUrl: "../../UI/RMicon.png"}
-	    chrome.notifications.create("notificationName",opt,function(){});
+	$scope.getData = function(data){
+		console.log(data);
+		return data;
+	}
+	$scope.createNotification = function(id) {
+
+		articles.getOne(id).then(function(data) { 
+			var link = data.link;
+			console.log("link is first: " + link);
+
+			var opt = {type: "basic",title: data.name, message: data.link,iconUrl: "../../UI/RMicon.png", buttons: [{ title: "Get to it!", 
+                  iconUrl: "../../UI/checkbox.png"}], priority: 0}
+	    	chrome.notifications.create("notificationName",opt,function(){});
+
+			chrome.notifications.onButtonClicked.addListener(function() {
+				//console.log("link is now: " + link);
+				chrome.tabs.create({ url: link });
+			});
+
+		}, function(error){
+			console.log('Failed to create notification for id ' + id);
+		});
 
 	    //include this line if you want to clear the notification after 5 seconds
     	//setTimeout(function(){chrome.notifications.clear("notificationName",function(){});},5000);
@@ -231,6 +261,13 @@ app.factory('articles', ['$http', function($http){
 			var new_date = new Date(this.remind_me.date);
 			new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
 			article.remind_me.date = new_date.toDateString();
+		});
+	};
+
+	o.getOne = function(id) {
+		console.log("id: "+ id);
+		return $http.get('http://localhost:3000/articles/' + id).then(function(res) {
+			return res.data;
 		});
 	};
 

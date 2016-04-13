@@ -17,7 +17,8 @@
     "notifications",
     "contextMenus",
     "http://localhost:3000/",
-    "alarms"
+    "alarms", 
+    "tabs"
   ],
 
   "background": {
