@@ -40,27 +40,35 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			console.log(tomorrow);
 			tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
 			var untilTomorrow = tomorrow - (new Date());
-			chrome.alarms.create("newDay", { when: untilTomorrow });      		
+			//chrome.alarms.create("newDay", { when: untilTomorrow });      		
     	});
   	};
 
   	// Check to see if there are any alarms 
   	$scope.checkAlarms = function(){
-  		$scope.articles.forEach(function(article){
+  		for(var i = 0; i < $scope.articles.length; i++){
+  		//$scope.articles.forEach(function(article){
+  			var article = $scope.articles[i];
 			var date = new Date(article.remind_me.date);
 			var time = article.remind_me.time.split(':');
 			date.setHours(time[0],time[1],time[2]);
 
-			var alarm_time = date - Date.now();
+			console.log('reminder date = ' + date);
+			console.log('right now ' + new Date());
+
+			var alarm_time = date - (new Date());
+			alarm_time += i*100;
+			console.log(article._id + " at " + alarm_time);
 			//var info = article.name + "," + article.link + "," + article.note
 			chrome.alarms.create(article._id, { when: alarm_time });
-		});
+		}
+		//});
   	};
 
   	// FIXME: for testing only
-	$scope.create_alarms_test = function(){
+	/*$scope.create_alarms_test = function(){
 		chrome.alarms.create("newDay", { when: 5} );
-	};
+	};*/
 
 	chrome.alarms.onAlarm.addListener(function(alarm){
 		if(alarm.name === "newDay"){
@@ -87,7 +95,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	};
 
 	$scope.addArticle = function(){
-	
+		console.log($scope.remind_on);
 		if($scope.name != ''){
 			// Calculate new date based on text input of reminder timeframe 
 			var addToDate = 0;
@@ -107,6 +115,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			}
 			var date = new Date();
 			date.setDate(date.getDate() + addToDate);
+			console.log('add article reminder date ' + date );
 
 			console.log("user: " + $scope.currentUser);
 
@@ -116,7 +125,8 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 				user: $scope.currentUser,
 				note: $scope.note,
 				remind_me: {
-					date: date.toDateString()	// FIXME: add time once we allow user preferences
+					date: date.toDateString(),	// FIXME: add time once we allow user preferences
+					time: '12:00:00'
 				}
 			});
 			$scope.name = '';
@@ -195,14 +205,16 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		return data;
 	}
 	$scope.createNotification = function(id) {
+		console.log('create notifciation for ' + id);
 
 		articles.getOne(id).then(function(data) { 
 			var link = data.link;
-			console.log("link is first: " + link);
 
 			var opt = {type: "basic",title: data.name, message: data.link,iconUrl: "../../UI/RMicon.png", buttons: [{ title: "Get to it!", 
                   iconUrl: "../../UI/checkbox.png"}], priority: 0}
-	    	chrome.notifications.create("notificationName",opt,function(){});
+	    	chrome.notifications.create(id,opt,function(){
+	    		console.log('reached here for ' + data.name);
+	    	});
 
 			chrome.notifications.onButtonClicked.addListener(function() {
 				//console.log("link is now: " + link);
