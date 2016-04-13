@@ -34,20 +34,13 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 
 			// set alarms at login
 			$scope.checkAlarms();
-
-			var tomorrow = new Date();
-			tomorrow.setDate(tomorrow.getDate() + 1);
-			console.log(tomorrow);
-			tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
-			var untilTomorrow = tomorrow - (new Date());
-			//chrome.alarms.create("newDay", { when: untilTomorrow });      		
+	     	$scope.setNewDayAlarm();
     	});
   	};
 
   	// Check to see if there are any alarms 
   	$scope.checkAlarms = function(){
-  		for(var i = 0; i < $scope.articles.length; i++){
-  		//$scope.articles.forEach(function(article){
+  		$scope.articles.forEach(function(article){
   			var article = $scope.articles[i];
 			var date = new Date(article.remind_me.date);
 			var time = article.remind_me.time.split(':');
@@ -57,12 +50,19 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			console.log('right now ' + new Date());
 
 			var alarm_time = date - (new Date());
-			alarm_time += i*100;
 			console.log(article._id + " at " + alarm_time);
 			//var info = article.name + "," + article.link + "," + article.note
-			chrome.alarms.create(article._id, { when: alarm_time });
-		}
-		//});
+			chrome.alarms.create(article._id, { when: Date.now() + alarm_time });
+		});
+  	};
+
+  	$scope.setNewDayAlarm = function(){
+  		var tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		console.log(tomorrow);
+		tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
+		var untilTomorrow = tomorrow - (new Date());
+		chrome.alarms.create("newDay", { when: Date.now() + untilTomorrow }); 
   	};
 
   	// FIXME: for testing only
@@ -73,6 +73,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	chrome.alarms.onAlarm.addListener(function(alarm){
 		if(alarm.name === "newDay"){
 			$scope.checkAlarms();
+			$scope.setNewDayAlarm();
 		}
 		else{
 
@@ -126,7 +127,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 				note: $scope.note,
 				remind_me: {
 					date: date.toDateString(),	// FIXME: add time once we allow user preferences
-					time: '12:00:00'
+					time: '16:00:00'
 				}
 			});
 			$scope.name = '';
