@@ -9,6 +9,9 @@ var passport = require('passport');
 var Article = mongoose.model('Article');
 var User = mongoose.model('User');
 
+var moment = require('moment');
+
+
 /* add in 'auth' as a parameter to routes you want to check if they are logged in */
 
 router.get('/',function(req,res,next){
@@ -49,6 +52,27 @@ router.get('/articles/today', function(req, res, next){
 	});
 });
 
+/* GET articles by user id */
+router.get('/user/:username', function(req, res, next){
+	 Article.find({ 'username': req.params.username}).exec(function (err, articles) {
+		if (err) { 
+			return next(err);
+		}
+
+		res.json(articles);
+	});
+});
+
+/* GET user articles by date */
+router.get('/user/:username/:date', function(req,res,next){
+	Article.find({'username': req.params.username,'remind_me.date': req.params.date}).exec(function(err,articles){
+		if (err){
+			return next(err);
+		}
+		res.json(articles);
+	});
+});
+
 /* UPDATE reminder date/time for an article */
 router.put('/articles/:article/snooze', function(req, res, next){
 	req.article.snooze(function(err, article){
@@ -75,6 +99,7 @@ router.delete('/articles/:article', function(req, res){
 	// var article = res.json(req.article);
 	// console.dir(collection);
 	// console.dir(article);
+	console.log(req.params.id);
 	req.db.get('articles').remove({_id:req.params.id.toString()}.exec(function(err,result){
 		if (err){
 			return next(err);
@@ -86,7 +111,6 @@ router.delete('/articles/:article', function(req, res){
 /* POST new article reminder */
 router.post('/articles', function(req, res, next){
 	var article = new Article(req.body);
-	
 	//article.user = req.payload.username;
 	
 	article.save(function(err, article){
@@ -126,7 +150,8 @@ router.post('/register', function(req, res, next){
   user.save(function (err){
     if(err){ return next(err); }
 
-    return res.json({token: user.generateJWT()})
+    return res.json({token: user.generateJWT()
+    				,id: user._id});
   });
 });
 
@@ -141,7 +166,8 @@ router.post('/login', function(req, res, next){
     if(err){ return next(err); }
 
     if(user){
-      return res.json({token: user.generateJWT()});
+      return res.json({token: user.generateJWT()
+      					,id: user._id});
     } else {
       return res.status(401).json(info);
     }
