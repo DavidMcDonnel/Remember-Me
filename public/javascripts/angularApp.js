@@ -1,12 +1,25 @@
 var app = angular.module('rememberMe', []); //CHANGE
 
-app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, articles, auth){
+app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($scope, $window, articles, auth){
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
 	
 	$scope.user = {};
-	
+
+	$scope.isLoggedIn = auth.isLoggedIn;
+  	$scope.currentUser = auth.currentUser;
+  	$scope.user_id = $window.localStorage['user_id'];
+  	//$scope.logOut = auth.logOut;
+  	
+  	function dateFormat(date){
+		var month = date.getMonth() < 10 ? "0"+date.getMonth():date.getMonth()
+					,day = date.getDate() < 10 ? "0"+date.getDate():date.getDate()
+					,year = date.getFullYear();
+		return month+day+year;
+	}
+
+  
 	$scope.register = function(){
 		$scope.user = {
 			username: $scope.userRegister,
@@ -95,7 +108,6 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	};
 
 	$scope.addArticle = function(){
-		console.log($scope.remind_on);
 		if($scope.name != ''){
 			// Calculate new date based on text input of reminder timeframe 
 			var addToDate = 0;
@@ -115,22 +127,20 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			}
 			var date = new Date();
 			date.setDate(date.getDate() + addToDate);
-			console.log('add article reminder date ' + date );
-
-			console.log("user: " + $scope.currentUser);
 
 			articles.create({
 				name: $scope.name,
 				link: $scope.link,
-				user: $scope.currentUser,
+				username: $scope.user_id,
 				note: $scope.note,
 				remind_me: {
-					date: date.toDateString(),	// FIXME: add time once we allow user preferences
-					time: '12:00:00'
+					date: dateFormat(date),
+					time: Date.parse(date)
 				}
 			});
 			$scope.name = '';
 			$scope.link = '';
+			$scope.user = '';
 			$scope.note = '';
 			$scope.remind_on = '';
 			$scope.toggleNew();
@@ -256,6 +266,19 @@ app.factory('articles', ['$http', function($http){
 		});
 	};
 
+	o.getUserArticles = function(article){
+		return $http.get('http://localhost:3000/user/'+article.username).success(function(data){
+			angular.copy(data, o.articles);
+		});
+	};
+
+	o.getArticlesByDate = function(article){
+		var date = new Date(article.date).getTime();
+		return $http.get('http://localhost:3000/user/'+article.username+'/'+date).success(function(data){
+			angular.copy(data,o.articles);
+		});
+	};
+
 	o.create = function(article){
 		return $http.post('http://localhost:3000/articles', article).success(function(data){
 			o.articles.push(data);
@@ -289,8 +312,9 @@ app.factory('articles', ['$http', function($http){
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
 
-    auth.saveToken = function (token){
-  		$window.localStorage['remember-me-token'] = token;
+    auth.saveToken = function (data){
+  		$window.localStorage['remember-me-token'] = data.token;
+  		$window.localStorage['user_id'] = data.id;
  	};
 
 	auth.getToken = function (){
@@ -302,6 +326,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
   		if(token){
     		var payload = JSON.parse($window.atob(token.split('.')[1]));
+
     		return payload.exp > Date.now() / 1000;
   		} else {
     		return false;
@@ -312,30 +337,32 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   		if(auth.isLoggedIn()){
     		var token = auth.getToken();
     		var payload = JSON.parse($window.atob(token.split('.')[1]));
+
     		return payload.username;
   		}
 	};
 
 	auth.register = function(user){
   		return $http.post('http://localhost:3000/register', user).success(function(data){
-    		auth.saveToken(data.token);
+    		auth.saveToken(data);
   		});
 	};
 
 	auth.logIn = function(user){
 		console.log("calling login in angularApp.js for user " + user.username);
   		return $http.post('http://localhost:3000/login', user).success(function(data){
-    		auth.saveToken(data.token);
+    		auth.saveToken(data);
   		});
 	};
 
 	auth.logOut = function(){
+		console.log("in log out");
   		$window.localStorage.removeItem('remember-me-token');
+  		$window.localStorage.removeItem('user_id');
 	};
 
   return auth;
 }]);
-
 
 // app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
 // 	$stateProvider
