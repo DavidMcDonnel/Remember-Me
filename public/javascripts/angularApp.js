@@ -9,7 +9,6 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 
 	$scope.isLoggedIn = auth.isLoggedIn;
   	$scope.currentUser = auth.currentUser;
-  	$scope.user_id = $window.localStorage['user_id'];
   	//$scope.logOut = auth.logOut;
   	
   	function dateFormat(date){
@@ -29,6 +28,7 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
       		$scope.error = error;
     	}).then(function(){
     		$scope.registerSuccess = "You've successfully registered!";
+    		//$scope.loginRegister = false;
     	});
   	};
 
@@ -44,6 +44,8 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
       		$scope.registerSuccess = '';
       		$scope.isLoggedIn = auth.isLoggedIn();
       		$scope.currentUser = auth.currentUser();
+      		$scope.user_id = $window.localStorage['user_id'];
+      		//$scope.loginRegister = false;
 
 			// set alarms at login
 			$scope.checkAlarms();
@@ -98,6 +100,8 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
   		
   		$scope.isLoggedIn = auth.isLoggedIn();
       	$scope.currentUser = auth.currentUser();
+      	$scope.user_id = '';
+      	//$scope.loginRegister = true;
       	$scope.error = '';
       	$scope.registerSuccess = '';
   		//$scope.loginRegister = true;
