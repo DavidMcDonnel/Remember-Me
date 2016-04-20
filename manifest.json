@@ -19,7 +19,8 @@
     "http://localhost:3000/",
     "alarms", 
     "tabs",
-    "storage"
+    "storage",
+    "background"
   ],
 
   "background": {
