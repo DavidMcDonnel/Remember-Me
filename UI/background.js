@@ -58,20 +58,22 @@ function onClickHandler(info, tab) {
 // Check to see if there are any alarms 
 function checkAlarms(articles){
   articles.forEach(function(article){
-    var date = new Date(article.remind_me.date);
-    var time = article.remind_me.time.split(':');
-    date.setHours(time[0],time[1],time[2]);
+    // var date = new Date(article.remind_me.date);
+    // var time = article.remind_me.time.split(':');
+    // date.setHours(time[0],time[1],time[2]);
 
-    console.log('reminder date = ' + date);
-    console.log('right now ' + new Date());
+    console.log('unix timestamp:' + article.remind_me.time);
+    // console.log('reminder date = ' + date);
+    // console.log('right now ' + new Date());
 
-    var alarm_time = date - (new Date());
-    console.log(article._id + " at " + alarm_time);
+    // var alarm_time = date - (new Date());
+    // console.log(article._id + " at " + alarm_time);
     //var info = article.name + "," + article.link + "," + article.note
     var articleObj = {};
     articleObj[article._id] = article;
     chrome.storage.local.set( articleObj );
-    chrome.alarms.create(article._id, { when: Date.now() + alarm_time });
+    console.log('time ' + Number(article.remind_me.time));    
+    chrome.alarms.create(article._id, { when: Number(article.remind_me.time) });
   });
 }
 

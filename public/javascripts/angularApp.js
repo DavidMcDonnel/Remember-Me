@@ -80,16 +80,16 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 			var addToDate = 0;
 			switch($scope.remind_on){
 				case $scope.remind_options[0]:
-					addToDate = 0;
-					break;
-				case $scope.remind_options[1]:
 					addToDate = 1;
 					break;
-				case $scope.remind_options[2]:
+				case $scope.remind_options[1]:
 					addToDate = 7;
 					break;
-				case $scope.remind_options[3]:
+				case $scope.remind_options[2]:
 					addToDate = 14;
+					break;
+				default:
+					addToDate = 0;
 					break;
 			}
 			var date = new Date();
@@ -131,7 +131,7 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		$scope.isLoggedIn = auth.isLoggedIn();
 		$scope.currentUser = auth.currentUser();
 
-		articles.getToday();
+		articles.getArticlesByDate();
 		
 		$scope.getCurrentTabUrl(function(url, title){
 			$scope.link = url;
@@ -196,7 +196,7 @@ app.controller('ArticlesCtrl', ['$scope', '$stateParams', 'articles', function($
 	}
 }]);
 
-app.factory('articles', ['$http', function($http){
+app.factory('articles', ['$http','$window', function($http,$window){
 	var o = {
 		articles: []
 	};
@@ -208,20 +208,25 @@ app.factory('articles', ['$http', function($http){
 	};
 
 	o.getToday = function(){
-		return $http.get('http://localhost:3000/articles/today').success(function(data){
+		var date = new Date();
+		date = dateFormat(date);
+		return $http.get('http://localhost:3000/articles/date').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
-	o.getUserArticles = function(article){
-		return $http.get('http://localhost:3000/user/'+article.username).success(function(data){
+	o.getUserArticles = function(){
+		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']).success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
-	o.getArticlesByDate = function(article){
-		var date = new Date(article.date).getTime();
-		return $http.get('http://localhost:3000/user/'+article.username+'/'+date).success(function(data){
+	o.getArticlesByDate = function(date){
+		if (date === null){
+			date = new Date().getTime();	
+		}else date = new Date(date).getTime();
+		
+		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']+'/'+date).success(function(data){
 			angular.copy(data,o.articles);
 		});
 	};
