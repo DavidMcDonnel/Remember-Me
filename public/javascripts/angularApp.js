@@ -258,9 +258,11 @@ app.factory('articles', ['$http','$window', function($http,$window){
 
 	o.snooze = function(article){
 		return $http.put('http://localhost:3000/articles/' + article._id + '/snooze').success(function(data){
-			var new_date = new Date(article.remind_me.date);
+			var new_date = new Date();
+			console.log('now ' + new_date);
 			new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
-			article.remind_me.date = new_date.toDateString();
+			console.log('new time ' + new_date);
+			article.remind_me.date = dateFormat(new_date);
 		});
 	};
 

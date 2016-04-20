@@ -136,9 +136,13 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
 chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
   chrome.storage.local.get(notificationId, function(result){
     console.log('snooze clicked');
-    //articles.snooze(article); 
-    // angular.injector(['$http', 'mainCtrl.articles']).get('o').snooze(article);
-
+    snoozeArticle(result[notificationId]); 
     chrome.notifications.clear(notificationId, function() {});
   });
 });
+
+function snoozeArticle(article){
+  var xhr = new XMLHttpRequest();
+  xhr.open("PUT", 'http://localhost:3000/articles/' + article._id + '/snooze', true);
+  xhr.send();
+}
