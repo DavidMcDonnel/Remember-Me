@@ -4,8 +4,18 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
-	
 	$scope.user = {};
+	$scope.login = true;
+
+
+	$scope.showLoginRegister = function(id) {
+		if(id == 'register') {
+			$scope.login = false;
+		}
+		else {
+			$scope.login = true;
+		}
+	}
 	
 	$scope.register = function(){
 		$scope.user = {
@@ -41,7 +51,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
   	// Check to see if there are any alarms 
   	$scope.checkAlarms = function(){
   		$scope.articles.forEach(function(article){
-  			var article = $scope.articles[i];
+
 			var date = new Date(article.remind_me.date);
 			var time = article.remind_me.time.split(':');
 			date.setHours(time[0],time[1],time[2]);
@@ -64,6 +74,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		var untilTomorrow = tomorrow - (new Date());
 		chrome.alarms.create("newDay", { when: Date.now() + untilTomorrow }); 
   	};
+
 
   	// FIXME: for testing only
 	/*$scope.create_alarms_test = function(){
@@ -99,7 +110,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		console.log($scope.remind_on);
 		if($scope.name != ''){
 			// Calculate new date based on text input of reminder timeframe 
-			var addToDate = 0;
+			/*var addToDate = 0;
 			switch($scope.remind_on){
 				case $scope.remind_options[0]:
 					addToDate = 0;
@@ -115,8 +126,12 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 					break;
 			}
 			var date = new Date();
-			date.setDate(date.getDate() + addToDate);
-			console.log('add article reminder date ' + date );
+			date.setDate(date.getDate() + addToDate);  */
+
+			var time = $scope.time.toString();
+			var timeString = time.substring(16, 24);
+
+			console.log('add article reminder date ' + $scope.date + " " + timeString);
 
 			console.log("user: " + $scope.currentUser);
 
@@ -126,8 +141,8 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 				user: $scope.currentUser,
 				note: $scope.note,
 				remind_me: {
-					date: date.toDateString(),	// FIXME: add time once we allow user preferences
-					time: '16:00:00'
+					date: $scope.date.toDateString(),	// FIXME: add time once we allow user preferences
+					time: timeString
 				}
 			});
 			$scope.name = '';
@@ -212,7 +227,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			var link = data.link;
 
 			var opt = {type: "basic",title: data.name, message: data.link,iconUrl: "../../UI/RMicon.png", buttons: [{ title: "Get to it!", 
-                  iconUrl: "../../UI/checkbox.png"}], priority: 0}
+                  iconUrl: "../../UI/checkbox.png"}, {title: 'Snooze', iconUrl: "../../UI/snooze.png"}], priority: 0}
 	    	chrome.notifications.create(id,opt,function(){
 	    		console.log('reached here for ' + data.name);
 	    	});
