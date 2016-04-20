@@ -4,8 +4,17 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
-	
 	$scope.user = {};
+	$scope.login = false;
+
+	$scope.showLoginRegister = function(id) {
+		if(id == 'register') {
+			$scope.login = false;
+		}
+		else {
+			$scope.login = true;
+		}
+	}
 	
 	$scope.register = function(){
 		$scope.user = {
@@ -32,54 +41,11 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
       		$scope.isLoggedIn = auth.isLoggedIn();
       		$scope.currentUser = auth.currentUser();
 
-			// set alarms at login
-			$scope.checkAlarms();
-	     	$scope.setNewDayAlarm();
+      		console.log($scope.isLoggedIn);
+
     	});
   	};
 
-  	// Check to see if there are any alarms 
-  	$scope.checkAlarms = function(){
-  		$scope.articles.forEach(function(article){
-  			var article = $scope.articles[i];
-			var date = new Date(article.remind_me.date);
-			var time = article.remind_me.time.split(':');
-			date.setHours(time[0],time[1],time[2]);
-
-			console.log('reminder date = ' + date);
-			console.log('right now ' + new Date());
-
-			var alarm_time = date - (new Date());
-			console.log(article._id + " at " + alarm_time);
-			//var info = article.name + "," + article.link + "," + article.note
-			chrome.alarms.create(article._id, { when: Date.now() + alarm_time });
-		});
-  	};
-
-  	$scope.setNewDayAlarm = function(){
-  		var tomorrow = new Date();
-		tomorrow.setDate(tomorrow.getDate() + 1);
-		console.log(tomorrow);
-		tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
-		var untilTomorrow = tomorrow - (new Date());
-		chrome.alarms.create("newDay", { when: Date.now() + untilTomorrow }); 
-  	};
-
-  	// FIXME: for testing only
-	/*$scope.create_alarms_test = function(){
-		chrome.alarms.create("newDay", { when: 5} );
-	};*/
-
-	chrome.alarms.onAlarm.addListener(function(alarm){
-		if(alarm.name === "newDay"){
-			$scope.checkAlarms();
-			$scope.setNewDayAlarm();
-		}
-		else{
-
-			$scope.createNotification(alarm.name);
-		}
-	});
 
   	$scope.logOut = function() {
   		auth.logOut();
@@ -98,25 +64,11 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 	$scope.addArticle = function(){
 		console.log($scope.remind_on);
 		if($scope.name != ''){
-			// Calculate new date based on text input of reminder timeframe 
-			var addToDate = 0;
-			switch($scope.remind_on){
-				case $scope.remind_options[0]:
-					addToDate = 0;
-					break;
-				case $scope.remind_options[1]:
-					addToDate = 1;
-					break;
-				case $scope.remind_options[2]:
-					addToDate = 7;
-					break;
-				case $scope.remind_options[3]:
-					addToDate = 14;
-					break;
-			}
-			var date = new Date();
-			date.setDate(date.getDate() + addToDate);
-			console.log('add article reminder date ' + date );
+
+			var time = $scope.time.toString();
+			var timeString = time.substring(16, 24);
+
+			console.log('add article reminder date ' + $scope.date + " " + timeString);
 
 			console.log("user: " + $scope.currentUser);
 
@@ -126,8 +78,8 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 				user: $scope.currentUser,
 				note: $scope.note,
 				remind_me: {
-					date: date.toDateString(),	// FIXME: add time once we allow user preferences
-					time: '16:00:00'
+					date: $scope.date.toDateString(),	// FIXME: add time once we allow user preferences
+					time: timeString
 				}
 			});
 			$scope.name = '';
@@ -152,83 +104,13 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		$scope.isLoggedIn = auth.isLoggedIn();
 		$scope.currentUser = auth.currentUser();
 
-		articles.getToday();
-		
-		$scope.getCurrentTabUrl(function(url, title){
-			$scope.link = url;
-			$scope.name = title; 
-		});
+		console.log("Is logged in on init " + $scope.isLoggedIn);
+
+		articles.getAll();
+	
+		$scope.link = "";
+		$scope.name = "";
 	};
-
-	$scope.replyBtnClick = function(link) {
-		console.log("link: " + link);
-		chrome.tabs.create({ url: link });
-	}
-
-
-	$scope.getCurrentTabUrl = function(callback){
-	  // Query filter to be passed to chrome.tabs.query - see
-	  // https://developer.chrome.com/extensions/tabs#method-query
-	  var queryInfo = {
-	    active: true,
-	    currentWindow: true
-	  };
-
-	  chrome.tabs.query(queryInfo, function(tabs) {
-	    // chrome.tabs.query invokes the callback with a list of tabs that match the
-	    // query. When the popup is opened, there is certainly a window and at least
-	    // one tab, so we can safely assume that |tabs| is a non-empty array.
-	    // A window can only have one active tab at a time, so the array consists of
-	    // exactly one tab.
-	    var tab = tabs[0];
-
-	    // A tab is a plain object that provides information about the tab.
-	    // See https://developer.chrome.com/extensions/tabs#type-Tab
-	    var url = tab.url;
-	    var title = tab.title;
-
-	    // tab.url is only available if the "activeTab" permission is declared.
-	    // If you want to see the URL of other tabs (e.g. after removing active:true
-	    // from |queryInfo|), then the "tabs" permission is required to see their
-	    // "url" properties.
-	    console.assert(typeof url == 'string', 'tab.url should be a string');
-
-	    callback(url, title);
-	  });
-	};
-
-	$scope.createTab = function(url){
-		chrome.tabs.create({'url': url});
-	}; 
-
-	$scope.getData = function(data){
-		console.log(data);
-		return data;
-	}
-	$scope.createNotification = function(id) {
-		console.log('create notifciation for ' + id);
-
-		articles.getOne(id).then(function(data) { 
-			var link = data.link;
-
-			var opt = {type: "basic",title: data.name, message: data.link,iconUrl: "../../UI/RMicon.png", buttons: [{ title: "Get to it!", 
-                  iconUrl: "../../UI/checkbox.png"}], priority: 0}
-	    	chrome.notifications.create(id,opt,function(){
-	    		console.log('reached here for ' + data.name);
-	    	});
-
-			chrome.notifications.onButtonClicked.addListener(function() {
-				//console.log("link is now: " + link);
-				chrome.tabs.create({ url: link });
-			});
-
-		}, function(error){
-			console.log('Failed to create notification for id ' + id);
-		});
-
-	    //include this line if you want to clear the notification after 5 seconds
-    	//setTimeout(function(){chrome.notifications.clear("notificationName",function(){});},5000);
-    };
 
 }]);
 
@@ -299,6 +181,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
 	auth.isLoggedIn = function(){
+		console.log("In is logged in!");
   		var token = auth.getToken();
 
   		if(token){
