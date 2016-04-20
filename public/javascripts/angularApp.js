@@ -33,53 +33,41 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
       		$scope.currentUser = auth.currentUser();
 
 			// set alarms at login
-			$scope.checkAlarms();
-	     	$scope.setNewDayAlarm();
+			checkAlarms($scope.articles);
+	     	setNewDayAlarm();
     	});
   	};
 
-  	// Check to see if there are any alarms 
-  	$scope.checkAlarms = function(){
-  		$scope.articles.forEach(function(article){
-  			var article = $scope.articles[i];
-			var date = new Date(article.remind_me.date);
-			var time = article.remind_me.time.split(':');
-			date.setHours(time[0],time[1],time[2]);
+  // 	// Check to see if there are any alarms 
+  // 	$scope.checkAlarms = function(){
+  // 		$scope.articles.forEach(function(article){
+		// 	var date = new Date(article.remind_me.date);
+		// 	var time = article.remind_me.time.split(':');
+		// 	date.setHours(time[0],time[1],time[2]);
 
-			console.log('reminder date = ' + date);
-			console.log('right now ' + new Date());
+		// 	console.log('reminder date = ' + date);
+		// 	console.log('right now ' + new Date());
 
-			var alarm_time = date - (new Date());
-			console.log(article._id + " at " + alarm_time);
-			//var info = article.name + "," + article.link + "," + article.note
-			chrome.alarms.create(article._id, { when: Date.now() + alarm_time });
-		});
-  	};
+		// 	var alarm_time = date - (new Date());
+		// 	console.log(article._id + " at " + alarm_time);
+		// 	//var info = article.name + "," + article.link + "," + article.note
+		// 	chrome.alarms.create(article._id, { when: Date.now() + alarm_time });
+		// });
+  // 	};
 
-  	$scope.setNewDayAlarm = function(){
-  		var tomorrow = new Date();
-		tomorrow.setDate(tomorrow.getDate() + 1);
-		console.log(tomorrow);
-		tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
-		var untilTomorrow = tomorrow - (new Date());
-		chrome.alarms.create("newDay", { when: Date.now() + untilTomorrow }); 
-  	};
+  // 	$scope.setNewDayAlarm = function(){
+  // 		var tomorrow = new Date();
+		// tomorrow.setDate(tomorrow.getDate() + 1);
+		// console.log(tomorrow);
+		// tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
+		// var untilTomorrow = tomorrow - (new Date());
+		// chrome.alarms.create("newDay", { when: Date.now() + untilTomorrow }); 
+  // 	};
 
   	// FIXME: for testing only
 	/*$scope.create_alarms_test = function(){
 		chrome.alarms.create("newDay", { when: 5} );
 	};*/
-
-	chrome.alarms.onAlarm.addListener(function(alarm){
-		if(alarm.name === "newDay"){
-			$scope.checkAlarms();
-			$scope.setNewDayAlarm();
-		}
-		else{
-
-			$scope.createNotification(alarm.name);
-		}
-	});
 
   	$scope.logOut = function() {
   		auth.logOut();
@@ -127,7 +115,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 				note: $scope.note,
 				remind_me: {
 					date: date.toDateString(),	// FIXME: add time once we allow user preferences
-					time: '16:00:00'
+					time: '22:11:00'
 				}
 			});
 			$scope.name = '';
@@ -205,30 +193,6 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		console.log(data);
 		return data;
 	}
-	$scope.createNotification = function(id) {
-		console.log('create notifciation for ' + id);
-
-		articles.getOne(id).then(function(data) { 
-			var link = data.link;
-
-			var opt = {type: "basic",title: data.name, message: data.link,iconUrl: "../../UI/RMicon.png", buttons: [{ title: "Get to it!", 
-                  iconUrl: "../../UI/checkbox.png"}], priority: 0}
-	    	chrome.notifications.create(id,opt,function(){
-	    		console.log('reached here for ' + data.name);
-	    	});
-
-			chrome.notifications.onButtonClicked.addListener(function() {
-				//console.log("link is now: " + link);
-				chrome.tabs.create({ url: link });
-			});
-
-		}, function(error){
-			console.log('Failed to create notification for id ' + id);
-		});
-
-	    //include this line if you want to clear the notification after 5 seconds
-    	//setTimeout(function(){chrome.notifications.clear("notificationName",function(){});},5000);
-    };
 
 }]);
 
@@ -271,7 +235,7 @@ app.factory('articles', ['$http', function($http){
 
 	o.snooze = function(article){
 		return $http.put('http://localhost:3000/articles/' + article._id + '/snooze').success(function(data){
-			var new_date = new Date(this.remind_me.date);
+			var new_date = new Date(article.remind_me.date);
 			new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
 			article.remind_me.date = new_date.toDateString();
 		});
