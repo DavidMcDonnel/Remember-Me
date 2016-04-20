@@ -3,11 +3,11 @@ var mongoose = require('mongoose');
 var ArticleSchema = new mongoose.Schema({
 	name: String,
 	link: String,
-	user: String,
+	username: String,
 	note: String,
 	remind_me: {
 		date: String,
-		time: {type: String, default: '08:00:00'} 
+		time: String
 	}
 });
 

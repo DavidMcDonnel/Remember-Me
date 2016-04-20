@@ -1,12 +1,24 @@
 var app = angular.module('rememberMe', []); //CHANGE
 
-app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, articles, auth){
+app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($scope, $window, articles, auth){
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
 	
 	$scope.user = {};
-	
+
+	$scope.isLoggedIn = auth.isLoggedIn;
+  	$scope.currentUser = auth.currentUser;
+  	//$scope.logOut = auth.logOut;
+  	
+  	function dateFormat(date){
+		var month = date.getMonth() < 10 ? "0"+date.getMonth():date.getMonth()
+					,day = date.getDate() < 10 ? "0"+date.getDate():date.getDate()
+					,year = date.getFullYear();
+		return month+day+year;
+	}
+
+  
 	$scope.register = function(){
 		$scope.user = {
 			username: $scope.userRegister,
@@ -31,6 +43,8 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
       		$scope.registerSuccess = '';
       		$scope.isLoggedIn = auth.isLoggedIn();
       		$scope.currentUser = auth.currentUser();
+      		$scope.user_id = $window.localStorage['user_id'];
+      		//$scope.loginRegister = false;
 
 			// set alarms at login
 			checkAlarms($scope.articles);
@@ -38,36 +52,12 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
     	});
   	};
 
-  // 	// Check to see if there are any alarms 
-  // 	$scope.checkAlarms = function(){
-  // 		$scope.articles.forEach(function(article){
-		// 	var date = new Date(article.remind_me.date);
-		// 	var time = article.remind_me.time.split(':');
-		// 	date.setHours(time[0],time[1],time[2]);
-
-		// 	console.log('reminder date = ' + date);
-		// 	console.log('right now ' + new Date());
-
-		// 	var alarm_time = date - (new Date());
-		// 	console.log(article._id + " at " + alarm_time);
-		// 	//var info = article.name + "," + article.link + "," + article.note
-		// 	chrome.alarms.create(article._id, { when: Date.now() + alarm_time });
-		// });
-  // 	};
-
-  // 	$scope.setNewDayAlarm = function(){
-  // 		var tomorrow = new Date();
-		// tomorrow.setDate(tomorrow.getDate() + 1);
-		// console.log(tomorrow);
-		// tomorrow.setHours(0,0,0,0); // set an alarm to midnight to start checking alarms for next day
-		// var untilTomorrow = tomorrow - (new Date());
-		// chrome.alarms.create("newDay", { when: Date.now() + untilTomorrow }); 
-  // 	};
 
   	// FIXME: for testing only
 	/*$scope.create_alarms_test = function(){
 		chrome.alarms.create("newDay", { when: 5} );
 	};*/
+
 
   	$scope.logOut = function() {
   		auth.logOut();
@@ -111,15 +101,16 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 			articles.create({
 				name: $scope.name,
 				link: $scope.link,
-				user: $scope.currentUser,
+				username: $scope.user_id,
 				note: $scope.note,
 				remind_me: {
-					date: date.toDateString(),	// FIXME: add time once we allow user preferences
-					time: '22:11:00'
+					date: dateFormat(date),
+					time: Date.parse(date)
 				}
 			});
 			$scope.name = '';
 			$scope.link = '';
+			$scope.user = '';
 			$scope.note = '';
 			$scope.remind_on = '';
 			$scope.toggleNew();
@@ -193,6 +184,7 @@ app.controller('MainCtrl', ['$scope', 'articles', 'auth', function($scope, artic
 		console.log(data);
 		return data;
 	}
+	
 
 }]);
 
@@ -218,6 +210,19 @@ app.factory('articles', ['$http', function($http){
 	o.getToday = function(){
 		return $http.get('http://localhost:3000/articles/today').success(function(data){
 			angular.copy(data, o.articles);
+		});
+	};
+
+	o.getUserArticles = function(article){
+		return $http.get('http://localhost:3000/user/'+article.username).success(function(data){
+			angular.copy(data, o.articles);
+		});
+	};
+
+	o.getArticlesByDate = function(article){
+		var date = new Date(article.date).getTime();
+		return $http.get('http://localhost:3000/user/'+article.username+'/'+date).success(function(data){
+			angular.copy(data,o.articles);
 		});
 	};
 
@@ -254,8 +259,9 @@ app.factory('articles', ['$http', function($http){
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
 
-    auth.saveToken = function (token){
-  		$window.localStorage['remember-me-token'] = token;
+    auth.saveToken = function (data){
+  		$window.localStorage['remember-me-token'] = data.token;
+  		$window.localStorage['user_id'] = data.id;
  	};
 
 	auth.getToken = function (){
@@ -283,19 +289,20 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 	auth.register = function(user){
   		return $http.post('http://localhost:3000/register', user).success(function(data){
-    		auth.saveToken(data.token);
+    		auth.saveToken(data);
   		});
 	};
 
 	auth.logIn = function(user){
 		console.log("calling login in angularApp.js for user " + user.username);
   		return $http.post('http://localhost:3000/login', user).success(function(data){
-    		auth.saveToken(data.token);
+    		auth.saveToken(data);
   		});
 	};
 
 	auth.logOut = function(){
   		$window.localStorage.removeItem('remember-me-token');
+  		$window.localStorage.removeItem('user_id');
 	};
 
   return auth;
