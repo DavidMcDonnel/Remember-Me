@@ -7,6 +7,17 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 	
 	$scope.user = {};
 
+	$scope.login = true;
+
+	$scope.showLoginRegister = function(id) {
+		if(id == 'register') {
+			$scope.login = false;
+		}
+		else {
+			$scope.login = true;
+		}
+	}
+
 	$scope.isLoggedIn = auth.isLoggedIn;
   	$scope.currentUser = auth.currentUser;
   	//$scope.logOut = auth.logOut;
@@ -94,13 +105,11 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 			}
 			var date = new Date();
 			date.setDate(date.getDate() + addToDate);  */
+			//Wed Apr 20 2016 14:20:43 GMT-0500 (Central Daylight Time)
 
-			var time = $scope.time.toString();
-			var timeString = time.substring(16, 24);
-
-			console.log('add article reminder date ' + $scope.date + " " + timeString);
-
-			console.log("user: " + $scope.currentUser);
+			var date = $scope.date.toString().split(' ');
+			date.splice(4,1,$scope.time.toString().split(' ')[4]);
+			var date_string = date.join(' ');
 
 			articles.create({
 				name: $scope.name,
@@ -108,10 +117,11 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 				username: $scope.user_id,
 				note: $scope.note,
 				remind_me: {
-					date: dateFormat(date),
-					time: Date.parse(date)
+					date: dateFormat($scope.date),
+					time: Date.parse(date_string)
 				}
 			});
+
 			$scope.name = '';
 			$scope.link = '';
 			$scope.note = '';
