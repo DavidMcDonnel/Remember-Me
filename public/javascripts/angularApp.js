@@ -118,6 +118,9 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		// Find out if they're logged in and who current user is
 		$scope.isLoggedIn = auth.isLoggedIn();
 		$scope.currentUser = auth.currentUser();
+		if ($scope.isLoggedIn){
+			$scope.user_id = $window.localStorage['user_id'];
+		}
 
 		var date = new Date();
 		articles.getArticlesByDate(dateFormat(date));
