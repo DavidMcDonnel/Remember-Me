@@ -54,7 +54,7 @@ router.get('/articles/today', function(req, res, next){
 
 /* GET articles by user id */
 router.get('/user/:username', function(req, res, next){
-	 Article.find({ 'username': req.params.username}).exec(function (err, articles) {
+	 Article.find({ 'username': req.params.username,'toBeSent':true}).exec(function (err, articles) {
 		if (err) { 
 			return next(err);
 		}
@@ -65,7 +65,9 @@ router.get('/user/:username', function(req, res, next){
 
 /* GET user articles by date */
 router.get('/user/:username/:date', function(req,res,next){
-	Article.find({'username': req.params.username,'remind_me.date': req.params.date}).exec(function(err,articles){
+	Article.find({'username': req.params.username
+				,'remind_me.date': req.params.date
+				,'toBeSent':true}).exec(function(err,articles){
 		if (err){
 			return next(err);
 		}
@@ -76,6 +78,17 @@ router.get('/user/:username/:date', function(req,res,next){
 /* UPDATE reminder date/time for an article */
 router.put('/articles/:article/snooze', function(req, res, next){
 	req.article.snooze(function(err, article){
+		if (err) {
+			return next(err);
+		}
+
+		res.json(article);
+	});
+});
+
+/* UPDATE toBeSent for an article */
+router.put('/articles/:article/seen', function(req, res, next){
+	req.article.seen(function(err, article){
 		if (err) {
 			return next(err);
 		}

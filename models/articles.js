@@ -5,6 +5,7 @@ var ArticleSchema = new mongoose.Schema({
 	link: String,
 	username: String,
 	note: String,
+	toBeSent: {type:Boolean,default:true},
 	remind_me: {
 		date: String,
 		time: String
@@ -26,6 +27,11 @@ ArticleSchema.methods.snooze = function(callback){
 	new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
 	console.log('date2 = ' + new_date);
 	this.remind_me.date = new_date.toDateString();
+	this.save(callback);
+};
+
+ArticleSchema.methods.seen = function(callback){
+	this.toBeSent = false;
 	this.save(callback);
 };
 

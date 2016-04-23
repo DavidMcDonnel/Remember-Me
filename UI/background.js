@@ -5,9 +5,30 @@ function dateFormat(date){
   return month+day+year;
 }
 
+function beforeTomorrow(article,today){
+  console.log("In lessThan");
+  console.log("article: "+article+"\ndate2: "+today);
+  var articleArray = [article.slice(4),article.slice(0,2),article.slice(2,4)];
+  var todayArray = [today.slice(4),today.slice(0,2),today.slice(2,4)];
+
+  for (i=0;i<3;i++){
+    if (articleArray[i]==todayArray[i]){
+      if (i<2){continue;}else{return true;}
+    } else{
+      return articleArray[i]<todayArray[i];
+    }
+  }
+}
+
 function snoozeArticle(article){
   var xhr = new XMLHttpRequest();
   xhr.open("PUT", 'http://localhost:3000/articles/' + article._id + '/snooze', true);
+  xhr.send();
+}
+
+function articleSeen(article){
+  var xhr = new XMLHttpRequest();
+  xhr.open("PUT",'http://localhost:3000/articles/'+article._id+'/seen',true);
   xhr.send();
 }
 
@@ -33,11 +54,15 @@ var date = new Date();
         chrome.storage.local.set( articleObj );
         console.log('time ' + Number(article.remind_me.time));    
 
-        chrome.alarms.create(article._id, { when: Number(article.remind_me.time) });
+        if (beforeTomorrow(article.remind_me.date,date)){
+          console.log("Add this to notificaton queue");
+          chrome.alarms.create(article._id, { when: Number(article.remind_me.time) });
+        }
+        // chrome.alarms.create(article._id, { when: Number(article.remind_me.time) });
      });
     }
   }
-  xhr.open("GET", "http://localhost:3000/user/" + user + "/" + date, true);
+  xhr.open("GET", "http://localhost:3000/user/" + user, true);
   xhr.send();
 }
 
@@ -89,6 +114,7 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
     var article = result[notificationId];
     console.log('article ' + article.name);
     chrome.tabs.create({ url: article.link });
+    articleSeen(result[notificationId]);
     chrome.notifications.clear(notificationId, function() {});
   });
 });
