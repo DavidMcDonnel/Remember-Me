@@ -44,8 +44,8 @@ router.get('/articles/today', function(req, res, next){
 	 //var user = req.payload.username;
 
 	 Article.find({ 'remind_me.date': today}).exec(function (err, articles) {
-		if (err) { 
-			return next(err); 
+		if (err) {
+			return next(err);
 		}
 
 		res.json(articles);
@@ -91,20 +91,14 @@ router.get('/articles/:article',function(req,res){
 
 /* DELETE article by id */
 router.delete('/articles/:article', function(req, res){
-	// console.dir(res);
-	//console.dir(req);
-	// var article = new Article(req.body);
-	// var collection = req.db.get('articles');
-	// console.dir(req.params);
-	// var article = res.json(req.article);
-	// console.dir(collection);
-	// console.dir(article);
-	req.db.get('articles').remove({_id:req.params.id.toString()}.exec(function(err,result){
+	Article.remove({
+		_id: req.article._id
+	},function(err,result){
 		if (err){
-			return next(err);
-		}
-		//res.json(articles);
-	}));
+			res.send(err);
+		}	
+		res.json({message:"Successfully deleted"});
+	});
 });
 
 /* POST new article reminder */
