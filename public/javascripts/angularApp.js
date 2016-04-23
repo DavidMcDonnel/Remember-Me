@@ -1,6 +1,6 @@
-var app = angular.module('rememberMe', []); //CHANGE
+var app = angular.module('rememberMe'); 
 
-app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($scope, $window, articles, auth){
+app.controller('extensionCtrl', ['$scope', '$window', '$http', 'articles', 'auth', function($scope, $window, $http, articles, auth){
 	$scope.newArticle = false;
 	$scope.articles = articles.articles;
 	$scope.remind_options = ['1 day', '1 week', '2 weeks'];
@@ -18,18 +18,18 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		}
 	}
 
-	$scope.isLoggedIn = auth.isLoggedIn;
-  	$scope.currentUser = auth.currentUser;
-  	//$scope.logOut = auth.logOut;
-  	
-  	function dateFormat(date){
-		var month = date.getMonth() < 10 ? "0"+date.getMonth():date.getMonth()
-					,day = date.getDate() < 10 ? "0"+date.getDate():date.getDate()
-					,year = date.getFullYear();
-		return month+day+year;
-	}
+	$scope.isLoggedIn = auth.isLoggedIn();
+  	$scope.currentUser = auth.currentUser();
 
-  
+  	console.log("Extension is after init: " + $scope.isLoggedIn);
+
+
+  	$scope.goToWebsite = function(currentUser) {
+  		
+    	$scope.createTab('http://localhost:3000/');
+  		
+  	}
+  	
 	$scope.register = function(){
 		$scope.user = {
 			username: $scope.userRegister,
@@ -58,17 +58,10 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
       		//$scope.loginRegister = false;
 
 			// set alarms at login
-			checkAlarms($scope.articles);
+			checkAlarms($scope.user_id);
 	     	setNewDayAlarm();
     	});
   	};
-
-
-  	// FIXME: for testing only
-	/*$scope.create_alarms_test = function(){
-		chrome.alarms.create("newDay", { when: 5} );
-	};*/
-
 
   	$scope.logOut = function() {
   		auth.logOut();
@@ -85,28 +78,8 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 	};
 
 	$scope.addArticle = function(){
-		console.log($scope.remind_on);
+		console.log('user = ' + $scope.user_id);
 		if($scope.name != ''){
-			// Calculate new date based on text input of reminder timeframe 
-			/*var addToDate = 0;
-			switch($scope.remind_on){
-				case $scope.remind_options[0]:
-					addToDate = 0;
-					break;
-				case $scope.remind_options[1]:
-					addToDate = 1;
-					break;
-				case $scope.remind_options[2]:
-					addToDate = 7;
-					break;
-				case $scope.remind_options[3]:
-					addToDate = 14;
-					break;
-			}
-			var date = new Date();
-			date.setDate(date.getDate() + addToDate);  */
-			//Wed Apr 20 2016 14:20:43 GMT-0500 (Central Daylight Time)
-
 			var date = $scope.date.toString().split(' ');
 			date.splice(4,1,$scope.time.toString().split(' ')[4]);
 			var date_string = date.join(' ');
@@ -125,8 +98,11 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 			$scope.name = '';
 			$scope.link = '';
 			$scope.note = '';
-			$scope.remind_on = '';
+			$scope.date = '';
+			$scope.time = '';
 			$scope.toggleNew();
+
+			window.close();
 		}
 	};
 
@@ -135,21 +111,16 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		//articles.removeArticle({_id:article._id});
 	};
 
-	$scope.snoozeReminder = function(article){
-		articles.snooze(article);
-	};
-
 	$scope.init = function(){
 		// Find out if they're logged in and who current user is
 		$scope.isLoggedIn = auth.isLoggedIn();
 		$scope.currentUser = auth.currentUser();
 
-		articles.getArticlesByDate();
-		
 		$scope.getCurrentTabUrl(function(url, title){
 			$scope.link = url;
 			$scope.name = title; 
 		});
+
 	};
 
 	$scope.replyBtnClick = function(link) {
@@ -197,162 +168,5 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		console.log(data);
 		return data;
 	}
-	
 
 }]);
-
-app.controller('ArticlesCtrl', ['$scope', '$stateParams', 'articles', function($scope, $stateParams, articles){
-	$scope.articles = articles.articles[$stateParams.id];
-
-	$scope.addReminder = function(){
-		$scope.reminders.push($scope.datetime);
-	}
-}]);
-
-app.factory('articles', ['$http','$window', function($http,$window){
-	var o = {
-		articles: []
-	};
-
-	o.getAll = function() {
-		return $http.get('http://localhost:3000/articles').success(function(data){
-			angular.copy(data, o.articles);
-		});
-	};
-
-	o.getToday = function(){
-		var date = new Date();
-		date = dateFormat(date);
-		return $http.get('http://localhost:3000/articles/date').success(function(data){
-			angular.copy(data, o.articles);
-		});
-	};
-
-	o.getUserArticles = function(){
-		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']).success(function(data){
-			angular.copy(data, o.articles);
-		});
-	};
-
-	o.getArticlesByDate = function(date){
-		if (date === null){
-			date = new Date().getTime();	
-		}else date = new Date(date).getTime();
-		
-		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']+'/'+date).success(function(data){
-			angular.copy(data,o.articles);
-		});
-	};
-
-	o.create = function(article){
-		return $http.post('http://localhost:3000/articles', article).success(function(data){
-			o.articles.push(data);
-		});
-	};
-
-	o.removeArticle = function(article){
-		return $http.delete('http://localhost:3000/articles/'+article._id).success(function(data){
-				o.articles.splice(o.articles.indexOf(article),1);
-		});
-	};
-
-	o.snooze = function(article){
-		return $http.put('http://localhost:3000/articles/' + article._id + '/snooze').success(function(data){
-			var new_date = new Date();
-			console.log('now ' + new_date);
-			new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
-			console.log('new time ' + new_date);
-			article.remind_me.date = dateFormat(new_date);
-		});
-	};
-
-	o.getOne = function(id) {
-		console.log("id: "+ id);
-		return $http.get('http://localhost:3000/articles/' + id).then(function(res) {
-			return res.data;
-		});
-	};
-
-	return o;
-}]);
-
-app.factory('auth', ['$http', '$window', function($http, $window){
-   var auth = {};
-
-    auth.saveToken = function (data){
-  		$window.localStorage['remember-me-token'] = data.token;
-  		$window.localStorage['user_id'] = data.id;
- 	};
-
-	auth.getToken = function (){
-  		return $window.localStorage['remember-me-token'];
-	};
-
-	auth.isLoggedIn = function(){
-  		var token = auth.getToken();
-
-  		if(token){
-    		var payload = JSON.parse($window.atob(token.split('.')[1]));
-    		return payload.exp > Date.now() / 1000;
-  		} else {
-    		return false;
-  		}
-	};
-
-	auth.currentUser = function(){
-  		if(auth.isLoggedIn()){
-    		var token = auth.getToken();
-    		var payload = JSON.parse($window.atob(token.split('.')[1]));
-    		return payload.username;
-  		}
-	};
-
-	auth.register = function(user){
-  		return $http.post('http://localhost:3000/register', user).success(function(data){
-    		auth.saveToken(data);
-  		});
-	};
-
-	auth.logIn = function(user){
-		console.log("calling login in angularApp.js for user " + user.username);
-  		return $http.post('http://localhost:3000/login', user).success(function(data){
-    		auth.saveToken(data);
-  		});
-	};
-
-	auth.logOut = function(){
-  		$window.localStorage.removeItem('remember-me-token');
-  		$window.localStorage.removeItem('user_id');
-	};
-
-  return auth;
-}]);
-
-
-// app.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
-// 	$stateProvider
-// 	.state('home', {
-// 		url: '/home',
-// 		templateUrl: '/home.html',
-// 		controller: 'MainCtrl',
-// 		resolve: {
-// 			articlePromise: [ 'articles', function(articles){
-// 				return articles.getAll();
-// 			}]
-// 		}
-// 	})
-// 	.state('articles', {
-// 		url: '/articles/{id}',
-// 		templateUrl: '/articles.html',
-// 		controller: 'ArticlesCtrl'
-// 	});
-
-// 	$urlRouterProvider.otherwise('home');
-// }]);
-
-
-// /* Enable bootstrap popover -- FIXME move eksewhere */
-// $(document).ready(function(){
-//     $('[data-toggle="popover"]').popover();   
-//     $('[data-toggle="tooltip"]').tooltip();
-// });
