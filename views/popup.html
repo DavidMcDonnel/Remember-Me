@@ -1,117 +1,124 @@
-<html ng-app="rememberMe" ng-csp>
-  <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="../public/stylesheets/angular-csp.css"/>
-    <link type="text/css" rel="stylesheet" href="../UI/RMpopup.css"/>
+  <html ng-app="rememberMe" ng-csp>
+    <head>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+      <link type="text/css" rel="stylesheet" href="../public/stylesheets/angular-csp.css"/>
+      <link type="text/css" rel="stylesheet" href="../UI/RMpopup.css"/>
 
-    <title>RememberMe</title>
+      <title>RememberMe</title>
 
-    <!-- <script src="../UI/RMpopup.js"></script> -->
-    <!-- Latest compiled and minified JavaScript -->
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js" ></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
-   <script src="/UI/background.js"></script>
-    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"> </script> -->
-    <script src="/public/javascripts/angularApp.js"></script>
+      <!-- <script src="../UI/RMpopup.js"></script> -->
+      <!-- Latest compiled and minified JavaScript -->
+      <!-- jQuery library -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js" ></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+     <script src="/UI/background.js"></script>
+      <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"> </script> -->
+      <script src="/public/javascripts/angularApp.js"></script>
 
-  </head>
+    </head>
 
-  <body ng-controller="MainCtrl" ng-init="init()">
-    <h3> Remember-Me </h3>
+    <body ng-controller="MainCtrl" ng-init="init()">
+      <div class="main">
+        <h3> <a href="#"> Remember-Me </a> </h3>
 
-    <div ng-show="isLoggedIn" >Hello user, {{currentUser}}! </div>
+    <!--     <div ng-show="isLoggedIn" >Hello user, {{currentUser}}! </div>
+     -->
+        <div id="register_container" ng-hide="isLoggedIn"> 
+          <div id="register" ng-hide="login">
+          <div ng-show="error" class="alert alert-danger row">
+            <span>{{ error.message }}</span>
+          </div>
+          <div ng-show="registerSuccess" class="alert alert-success row">
+            <span>{{ registerSuccess }}</span>
+          </div>
+          <form ng-submit="register()" style="margin-top:30px;">
+            <h4>Register</h4>
+            <div class="form-group">
+             <input type="text" class="form-control"placeholder="Username"ng-model="userRegister"></input>
+            </div>
+            <div class="form-group">
+              <input type="password"class="form-control"placeholder="Password"ng-model="passwordRegister"></input>
+            </div>
 
-    <div id="register_container" ng-hide="isLoggedIn"> 
-      <div id="register" ng-hide="login">
-      <div ng-show="error" class="alert alert-danger row">
-        <span>{{ error.message }}</span>
-      </div>
-      <div ng-show="registerSuccess" class="alert alert-success row">
-        <span>{{ registerSuccess }}</span>
-      </div>
-      <form ng-submit="register()" style="margin-top:30px;">
-        <h4>Register</h4>
-        <div class="form-group">
-         <input type="text" class="form-control"placeholder="Username"ng-model="userRegister"></input>
+            <button type="submit" class="btn btn-primary" style="float: left">Register</button>
+
+            
+          </form>
+          <p style="float: right">
+              Have an account? 
+              <br/><a href="#" ng-click="showLoginRegister('login')"  >Login </a>
+            </p>
         </div>
-        <div class="form-group">
-          <input type="password"class="form-control"placeholder="Password"ng-model="passwordRegister"></input>
+      </div>
+
+        <div style:"clear:both"></div>
+
+        <div id="login_container" ng-hide="isLoggedIn">
+          <div id="login" ng-show="login">
+          <div ng-show="error" class="alert alert-danger row">
+            <span>{{ error.message }}</span>
+          </div>
+          <form ng-submit="logIn()"style="margin-top:30px;">
+          <h4>Log In</h4>
+          <div class="form-group">
+            <input type="text"class="form-control" placeholder="Username"ng-model="userLogin"></input>
+          </div>
+          <div class="form-group">
+            <input type="password"class="form-control"placeholder="Password"ng-model="passwordLogin"></input>
+          </div>
+          <button type="submit" class="btn btn-primary" style="float: left">Log In</button>
+
+          </form>
+              <p style="float: right">
+            Don't have an account? 
+            <br/><a href="#" ng-click="showLoginRegister('register')"  >Register</a>
+          </p>
+
+          </div>
+        </div> 
+
+          <div style:"clear:both"></div>
+
+        <!--<div id="articles" ng-show="isLoggedIn">
+          <ul>
+            <li ng-repeat="article in articles | limitTo:6">
+              <a href="#" ng-click="createTab(article.link)">{{article.name}}</a>
+              <p ng-show="article.note">{{article.note}}</p>
+              <hr/>
+            <!--   <div ng-show="{{article.note}}">
+                <span class="glyphicon glyphicon-info-sign" tooltip="{{article.name}}"></span>
+                <p> {{article.note}} </p> 
+              </div> 
+            </li>
+          </ul>
+        </div> -->
+
+        <div id="addNewArticle" ng-show="isLoggedIn">
+          <form ng-submit="addArticle()">
+            <p class="lead"> Add a reminder! </p>
+            <div class="form-group">
+              <input type="text"class="form-control" placeholder="Name" ng-model="name"></input>
+            </div>
+            <div class="form-group">
+              <input type="text"class="form-control" placeholder="Note" ng-model="note"></input>
+            </div>
+            <div class="form-group">
+              <input type="date"class="form-control" ng-model="date"></input>
+            </div>
+            <div class="form-group">
+              <input type="time"class="form-control" ng-model="time"></input>
+            </div>
+            <button type="submit" class="btn btn-success" style="float:left">Add</button>
+
+          </form>
+          <button ng-click="logOut()" class="btn btn-primary" style="float: right">Log Out</button>
         </div>
-        <button type="submit" class="btn btn-primary" style="float: left">Register</button>
-      </form>
 
-      <button type="submit" class="btn btn-primary" style="float: right" ng-click="showLoginRegister('login')">Login</button>
+        <div style:"clear:both"></div>
+
       </div>
-    </div>
+    </body>
 
-    <div id="login_container" ng-hide="isLoggedIn">
-      <div id="login" ng-show="login">
-      <div ng-show="error" class="alert alert-danger row">
-        <span>{{ error.message }}</span>
-      </div>
-      <form ng-submit="logIn()"style="margin-top:30px;">
-      <h4>Log In</h4>
-      <div class="form-group">
-        <input type="text"class="form-control" placeholder="Username"ng-model="userLogin"></input>
-      </div>
-      <div class="form-group">
-        <input type="password"class="form-control"placeholder="Password"ng-model="passwordLogin"></input>
-      </div>
-      <button type="submit" class="btn btn-primary" style="float: left">Log In</button>
-      </form>
-
-      <button type="submit" class="btn btn-primary" style="float: right" ng-click="showLoginRegister('register')"  >Register</button>
-      </div>
-      <br>
-    </div> 
-
-    <div id="logout" ng-show="isLoggedIn">
-      <form ng-submit="logOut()"style="margin-top:30px;">
-        <button type="submit" class="btn btn-primary">Log Out</button>
-      </form>
-    </div>
-
-    <!--<div id="articles" ng-show="isLoggedIn">
-      <ul>
-        <li ng-repeat="article in articles | limitTo:6">
-          <a href="#" ng-click="createTab(article.link)">{{article.name}}</a>
-          <p ng-show="article.note">{{article.note}}</p>
-          <hr/>
-        <!--   <div ng-show="{{article.note}}">
-            <span class="glyphicon glyphicon-info-sign" tooltip="{{article.name}}"></span>
-            <p> {{article.note}} </p> 
-          </div> 
-        </li>
-      </ul>
-    </div> -->
-
-    <div id="addNewArticle" ng-show="isLoggedIn">
-      
-      <button ng-hide="newArticle" class="btn btn-success" ng-click="toggleNew()">New</button>
-
-      <div ng-show="newArticle">
-        <form ng-submit="addArticle()">
-        
-        <div class="form-group">
-          <input type="text"class="form-control" placeholder="Name" ng-model="name"></input>
-        </div>
-        <div class="form-group">
-          <input type="text"class="form-control" placeholder="Note" ng-model="note"></input>
-        </div>
-        <div class="form-group">
-          <input type="date"class="form-control" ng-model="date"></input>
-        </div>
-        <div class="form-group">
-          <input type="time"class="form-control" ng-model="time"></input>
-        </div>
-        <button type="submit" class="btn btn-success">Add</button>
-        </form>
-      </div>
-    </div>
-
-  </body>
-
-</html>
+  </html>
 

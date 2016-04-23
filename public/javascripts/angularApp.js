@@ -22,14 +22,6 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
   	$scope.currentUser = auth.currentUser;
   	//$scope.logOut = auth.logOut;
   	
-  	function dateFormat(date){
-		var month = date.getMonth() < 10 ? "0"+date.getMonth():date.getMonth()
-					,day = date.getDate() < 10 ? "0"+date.getDate():date.getDate()
-					,year = date.getFullYear();
-		return month+day+year;
-	}
-
-  
 	$scope.register = function(){
 		$scope.user = {
 			username: $scope.userRegister,
@@ -58,7 +50,7 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
       		//$scope.loginRegister = false;
 
 			// set alarms at login
-			checkAlarms($scope.articles);
+			checkAlarms($scope.user_id);
 	     	setNewDayAlarm();
     	});
   	};
@@ -85,28 +77,8 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 	};
 
 	$scope.addArticle = function(){
-		console.log($scope.remind_on);
+		console.log('user = ' + $scope.user_id);
 		if($scope.name != ''){
-			// Calculate new date based on text input of reminder timeframe 
-			/*var addToDate = 0;
-			switch($scope.remind_on){
-				case $scope.remind_options[0]:
-					addToDate = 0;
-					break;
-				case $scope.remind_options[1]:
-					addToDate = 1;
-					break;
-				case $scope.remind_options[2]:
-					addToDate = 7;
-					break;
-				case $scope.remind_options[3]:
-					addToDate = 14;
-					break;
-			}
-			var date = new Date();
-			date.setDate(date.getDate() + addToDate);  */
-			//Wed Apr 20 2016 14:20:43 GMT-0500 (Central Daylight Time)
-
 			var date = $scope.date.toString().split(' ');
 			date.splice(4,1,$scope.time.toString().split(' ')[4]);
 			var date_string = date.join(' ');
@@ -125,8 +97,11 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 			$scope.name = '';
 			$scope.link = '';
 			$scope.note = '';
-			$scope.remind_on = '';
+			$scope.date = '';
+			$scope.time = '';
 			$scope.toggleNew();
+
+			window.close();
 		}
 	};
 
@@ -144,11 +119,16 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		$scope.isLoggedIn = auth.isLoggedIn();
 		$scope.currentUser = auth.currentUser();
 
-		articles.getArticlesByDate();
+		var date = new Date();
+		articles.getArticlesByDate(dateFormat(date));
 		
 		$scope.getCurrentTabUrl(function(url, title){
 			$scope.link = url;
 			$scope.name = title; 
+		});
+
+		chrome.alarms.getAll(function(alarms){
+			console.log(alarms);
 		});
 	};
 
@@ -235,11 +215,8 @@ app.factory('articles', ['$http','$window', function($http,$window){
 	};
 
 	o.getArticlesByDate = function(date){
-		if (date === null){
-			date = new Date().getTime();	
-		}else date = new Date(date).getTime();
-		
 		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']+'/'+date).success(function(data){
+			console.log('data: ' + data);
 			angular.copy(data,o.articles);
 		});
 	};
