@@ -22,14 +22,6 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
   	$scope.currentUser = auth.currentUser;
   	//$scope.logOut = auth.logOut;
   	
-  	function dateFormat(date){
-		var month = date.getMonth() < 10 ? "0"+date.getMonth():date.getMonth()
-					,day = date.getDate() < 10 ? "0"+date.getDate():date.getDate()
-					,year = date.getFullYear();
-		return month+day+year;
-	}
-
-  
 	$scope.register = function(){
 		$scope.user = {
 			username: $scope.userRegister,
@@ -57,9 +49,8 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
       		$scope.user_id = $window.localStorage['user_id'];
       		//$scope.loginRegister = false;
 
-      		console.log($scope.articles);
 			// set alarms at login
-			checkAlarms($scope.articles);
+			checkAlarms($scope.user_id);
 	     	setNewDayAlarm();
     	});
   	};
@@ -86,7 +77,7 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 	};
 
 	$scope.addArticle = function(){
-		console.log($scope.remind_on);
+		console.log('user = ' + $scope.user_id);
 		if($scope.name != ''){
 			var date = $scope.date.toString().split(' ');
 			date.splice(4,1,$scope.time.toString().split(' ')[4]);
@@ -134,6 +125,10 @@ app.controller('MainCtrl', ['$scope', '$window', 'articles', 'auth', function($s
 		$scope.getCurrentTabUrl(function(url, title){
 			$scope.link = url;
 			$scope.name = title; 
+		});
+
+		chrome.alarms.getAll(function(alarms){
+			console.log(alarms);
 		});
 	};
 
@@ -221,6 +216,7 @@ app.factory('articles', ['$http','$window', function($http,$window){
 
 	o.getArticlesByDate = function(date){
 		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']+'/'+date).success(function(data){
+			console.log('data: ' + data);
 			angular.copy(data,o.articles);
 		});
 	};
