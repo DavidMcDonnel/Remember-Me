@@ -115,6 +115,9 @@ app.controller('extensionCtrl', ['$scope', '$window', '$http', 'articles', 'auth
 		// Find out if they're logged in and who current user is
 		$scope.isLoggedIn = auth.isLoggedIn();
 		$scope.currentUser = auth.currentUser();
+		if ($scope.isLoggedIn){
+			$scope.user_id = $window.localStorage['user_id'];
+		}
 
 		$scope.getCurrentTabUrl(function(url, title){
 			$scope.link = url;
