@@ -157,6 +157,7 @@
               <li class="list-group-item" ng-repeat="article in articlesFuture | filter: search">
                 <a href="{{article.link}}" ng-click="createTab(article.link)" style="float:left">{{article.name}}</a>
                 <a href="" ng-click="deleteArticle(article)" style="float: right"><span class="glyphicon glyphicon-trash"></span></a> 
+                <div style="clear:both"></div>              
 
                 <p ng-show="article.note">{{article.note}}</p>
                
