@@ -155,7 +155,9 @@
           <div id="collapse2" class="panel-collapse collapse">
             <ul class="list-group">
               <li class="list-group-item" ng-repeat="article in articlesFuture | filter: search">
-                <a href="{{article.link}}" ng-click="createTab(article.link)">{{article.name}}</a>
+                <a href="{{article.link}}" ng-click="createTab(article.link)" style="float:left">{{article.name}}</a>
+                <a href="" ng-click="deleteArticle(article)" style="float: right"><span class="glyphicon glyphicon-trash"></span></a> 
+
                 <p ng-show="article.note">{{article.note}}</p>
                
               </li>
