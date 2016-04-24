@@ -35,7 +35,7 @@ function articleSeen(article){
 
 // Check to see if there are any alarms 
 function checkAlarms(user){
-var date = new Date();
+  var date = new Date();
   date = dateFormat(date);
 
   console.log(date);

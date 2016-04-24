@@ -34,6 +34,12 @@ app.factory('articles', ['$http','$window', function($http,$window){
 
 	o.create = function(article){
 		return $http.post('http://localhost:3000/articles', article).success(function(data){
+			console.log('adding');
+			var today = dateFormat(new Date());
+			if(article.remind_me.date === today){
+				console.log('today');
+				checkAlarms(article.username);
+			}
 			o.articles.push(data);
 		});
 	};
