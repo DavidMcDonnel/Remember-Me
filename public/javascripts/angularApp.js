@@ -103,7 +103,7 @@ app.controller('extensionCtrl', ['$scope', '$window', '$http', 'articles', 'auth
 			$scope.time = '';
 			$scope.toggleNew();
 
-			window.close();
+			//window.close();
 		}
 	};
 

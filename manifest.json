@@ -17,7 +17,7 @@
     "https://ajax.googleapis.com/", 
     "notifications",
     "contextMenus",
-    "http://localhost:3000/",
+    "http://ec2-54-201-166-96.us-west-2.compute.amazonaws.com:3000/",
     "alarms", 
     "tabs",
     "storage",
