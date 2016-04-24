@@ -53,7 +53,9 @@
           border-top-left-radius: 0;
           border-top-right-radius: 0;
         }
-
+        .search {
+          margin: 10 -10px;
+        }
     </style>
 
   </head>
@@ -76,12 +78,14 @@
           <div class="navbar-form navbar-left" ng-show="isLoggedIn" >
             <button type="submit" class="btn btn-primary" ng-click="logOut()">Log Out</button>
           </div> 
+          <div class="navbar-right" ng-show="isLoggedIn">
+              <input type="text"class="form-control search" placeholder="Search for article"ng-model="search"></input>
+          </div>
         </div>
       </nav>
 
 
-      <div ng-show="isLoggedIn"><h2> Hello user, {{currentUser}}! </h2></div>
-
+      <div ng-show="isLoggedIn"><h2> Hello, {{currentUser}}! </h2></div>
 
       <div id="register_container" ng-hide="isLoggedIn"> 
         <div id="register" ng-hide="login">
@@ -125,13 +129,14 @@
               <a data-toggle="collapse" href="#collapse1">Today's Articles</a>
             </h4>
           </div>
-          <div id="collapse1" class="panel-collapse collapse">
+          <div id="collapse1" class="panel-collapse collapse in">
             <ul class="list-group">
-              <li class="list-group-item" ng-repeat="article in articles ">
-                <a href="{{article.link}}" ng-click="createTab(article.link)">{{article.name}}</a>
+              <li class="list-group-item" ng-repeat="article in articles | filter: search">
+                <a href="{{article.link}}" ng-click="createTab(article.link)" style="float:left">{{article.name}}</a>
+                <a href="" ng-click="deleteArticle(article)" style="float: right"><span class="glyphicon glyphicon-trash"></span></a> 
+                <div style="clear:both"></div>              
+
                 <p ng-show="article.note">{{article.note}}</p>
-                <hr/>
-                
               </li>
             </ul>
             
@@ -149,11 +154,10 @@
           </div>
           <div id="collapse2" class="panel-collapse collapse">
             <ul class="list-group">
-              <li class="list-group-item" ng-repeat="article in articlesFuture ">
+              <li class="list-group-item" ng-repeat="article in articlesFuture | filter: search">
                 <a href="{{article.link}}" ng-click="createTab(article.link)">{{article.name}}</a>
                 <p ng-show="article.note">{{article.note}}</p>
-                <hr/>
-                
+               
               </li>
             </ul>
             
