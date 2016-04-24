@@ -1,4 +1,5 @@
 var app = angular.module('rememberMe'); 
+var serverUrl = 'http://ec2-54-201-166-96.us-west-2.compute.amazonaws.com:3000';
 
 app.controller('extensionCtrl', ['$scope', '$window', '$http', 'articles', 'auth', function($scope, $window, $http, articles, auth){
 	$scope.newArticle = false;
@@ -26,7 +27,7 @@ app.controller('extensionCtrl', ['$scope', '$window', '$http', 'articles', 'auth
 
   	$scope.goToWebsite = function(currentUser) {
   		
-    	$scope.createTab('http://localhost:3000/');
+    	$scope.createTab(serverUrl+'/');
   		
   	}
   	

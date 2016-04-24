@@ -1,5 +1,7 @@
 var app = angular.module('rememberMe', []); //CHANGE
 
+var serverUrl = 'http://ec2-54-201-166-96.us-west-2.compute.amazonaws.com:3000';
+
 app.factory('articles', ['$http','$window', function($http,$window){
 	var o = {
 		articles: [], 
@@ -7,7 +9,7 @@ app.factory('articles', ['$http','$window', function($http,$window){
 	};
 
 	o.getAll = function() {
-		return $http.get('http://localhost:3000/articles').success(function(data){
+		return $http.get(serverUrl+'/articles').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
@@ -15,37 +17,37 @@ app.factory('articles', ['$http','$window', function($http,$window){
 	o.getToday = function(){
 		var date = new Date();
 		date = dateFormat(date);
-		return $http.get('http://localhost:3000/articles/date').success(function(data){
+		return $http.get(serverUrl+'/articles/date').success(function(data){
 			angular.copy(data, o.articles);
 		});
 	};
 
 	o.getUserArticles = function(){
-		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']).success(function(data){
+		return $http.get(serverUrl+'/user/'+$window.localStorage['user_id']).success(function(data){
 			angular.copy(data, o.articlesFuture);
 		});
 	};
 
 	o.getArticlesByDate = function(date){
-		return $http.get('http://localhost:3000/user/'+$window.localStorage['user_id']+'/'+date).success(function(data){
+		return $http.get(serverUrl+'/user/'+$window.localStorage['user_id']+'/'+date).success(function(data){
 			angular.copy(data,o.articles);
 		});
 	};
 
 	o.create = function(article){
-		return $http.post('http://localhost:3000/articles', article).success(function(data){
+		return $http.post(serverUrl+'/articles', article).success(function(data){
 			o.articles.push(data);
 		});
 	};
 
 	o.removeArticle = function(article){
-		return $http.delete('http://localhost:3000/articles/'+article._id).success(function(data){
+		return $http.delete(serverUrl+'/articles/'+article._id).success(function(data){
 				o.articles.splice(o.articles.indexOf(article),1);
 		});
 	};
 
 	o.snooze = function(article){
-		return $http.put('http://localhost:3000/articles/' + article._id + '/snooze').success(function(data){
+		return $http.put(serverUrl+'/articles/' + article._id + '/snooze').success(function(data){
 			var new_date = new Date();
 			console.log('now ' + new_date);
 			new_date.setDate(new_date.getDate() + 1); // FIX ME - allow user-specified snooze-time
@@ -56,7 +58,7 @@ app.factory('articles', ['$http','$window', function($http,$window){
 
 	o.getOne = function(id) {
 		console.log("id: "+ id);
-		return $http.get('http://localhost:3000/articles/' + id).then(function(res) {
+		return $http.get(serverUrl+'/articles/' + id).then(function(res) {
 			return res.data;
 		});
 	};
@@ -96,14 +98,14 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
 	auth.register = function(user){
-  		return $http.post('http://localhost:3000/register', user).success(function(data){
+  		return $http.post(serverUrl+'/register', user).success(function(data){
     		auth.saveToken(data);
   		});
 	};
 
 	auth.logIn = function(user){
 		console.log("calling login in angularApp.js for user " + user.username);
-  		return $http.post('http://localhost:3000/login', user).success(function(data){
+  		return $http.post(serverUrl+'/login', user).success(function(data){
     		auth.saveToken(data);
   		});
 	};

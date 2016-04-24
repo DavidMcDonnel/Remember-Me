@@ -1,3 +1,5 @@
+var serverUrl = 'http://ec2-54-201-166-96.us-west-2.compute.amazonaws.com:3000';
+
 function dateFormat(date){
   var month = date.getMonth() < 10 ? "0"+date.getMonth():date.getMonth()
         ,day = date.getDate() < 10 ? "0"+date.getDate():date.getDate()
@@ -22,13 +24,13 @@ function beforeTomorrow(article,today){
 
 function snoozeArticle(article){
   var xhr = new XMLHttpRequest();
-  xhr.open("PUT", 'http://localhost:3000/articles/' + article._id + '/snooze', true);
+  xhr.open("PUT", serverUrl+'/articles/' + article._id + '/snooze', true);
   xhr.send();
 }
 
 function articleSeen(article){
   var xhr = new XMLHttpRequest();
-  xhr.open("PUT",'http://localhost:3000/articles/'+article._id+'/seen',true);
+  xhr.open("PUT",serverUrl+'/articles/'+article._id+'/seen',true);
   xhr.send();
 }
 
@@ -62,7 +64,7 @@ var date = new Date();
      });
     }
   }
-  xhr.open("GET", "http://localhost:3000/user/" + user, true);
+  xhr.open("GET", serverUrl+"/user/" + user, true);
   xhr.send();
 }
 
